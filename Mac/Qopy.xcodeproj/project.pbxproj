@@ -1,0 +1,275 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B10000000000000000000020 /* QopyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000020 /* QopyApp.swift */; };
+		B10000000000000000000021 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000021 /* AppModel.swift */; };
+		B10000000000000000000022 /* SendQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000022 /* SendQRView.swift */; };
+		B10000000000000000000023 /* ReceiveScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* ReceiveScannerView.swift */; };
+		B10000000000000000000024 /* QRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000024 /* QRScanner.swift */; };
+		B10000000000000000000025 /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000025 /* QRCodeGenerator.swift */; };
+		B10000000000000000000026 /* SelectionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000026 /* SelectionCapture.swift */; };
+		B10000000000000000000027 /* TextPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000027 /* TextPayload.swift */; };
+		B10000000000000000000028 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000028 /* HotkeyManager.swift */; };
+		B10000000000000000000029 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000029 /* ServiceProvider.swift */; };
+		A10000000000000000000011 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000010 /* Assets.xcassets */; };
+		B1000000000000000000002A /* GlassChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000002A /* GlassChrome.swift */; };
+		B1000000000000000000002B /* Qopy.icns in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000002B /* Qopy.icns */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A10000000000000000000004 /* Qopy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Qopy.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000020 /* QopyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QopyApp.swift; sourceTree = "<group>"; };
+		A10000000000000000000021 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		A10000000000000000000022 /* SendQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRView.swift; sourceTree = "<group>"; };
+		A10000000000000000000023 /* ReceiveScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveScannerView.swift; sourceTree = "<group>"; };
+		A10000000000000000000024 /* QRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanner.swift; sourceTree = "<group>"; };
+		A10000000000000000000025 /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
+		A10000000000000000000026 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
+		A10000000000000000000027 /* TextPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPayload.swift; sourceTree = "<group>"; };
+		A10000000000000000000028 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		A10000000000000000000029 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
+		A10000000000000000000010 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A10000000000000000000012 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A1000000000000000000002A /* GlassChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassChrome.swift; sourceTree = "<group>"; };
+		A1000000000000000000002B /* Qopy.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Qopy.icns; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A10000000000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000003 /* Qopy */,
+				A10000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A10000000000000000000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000004 /* Qopy.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A10000000000000000000003 /* Qopy */ = {
+			isa = PBXGroup;
+			children = (
+				A10000000000000000000020 /* QopyApp.swift */,
+				A10000000000000000000021 /* AppModel.swift */,
+				A10000000000000000000022 /* SendQRView.swift */,
+				A10000000000000000000023 /* ReceiveScannerView.swift */,
+				A10000000000000000000024 /* QRScanner.swift */,
+				A10000000000000000000025 /* QRCodeGenerator.swift */,
+				A10000000000000000000026 /* SelectionCapture.swift */,
+				A10000000000000000000027 /* TextPayload.swift */,
+				A10000000000000000000028 /* HotkeyManager.swift */,
+				A10000000000000000000029 /* ServiceProvider.swift */,
+				A1000000000000000000002A /* GlassChrome.swift */,
+				A1000000000000000000002B /* Qopy.icns */,
+				A10000000000000000000010 /* Assets.xcassets */,
+				A10000000000000000000012 /* Info.plist */,
+			);
+			path = Qopy;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A10000000000000000000005 /* Qopy */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1000000000000000000000A /* Build configuration list for PBXNativeTarget "Qopy" */;
+			buildPhases = (
+				A10000000000000000000006 /* Sources */,
+				A10000000000000000000008 /* Frameworks */,
+				A10000000000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Qopy;
+			productName = Qopy;
+			productReference = A10000000000000000000004 /* Qopy.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A1000000000000000000000F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+			};
+			buildConfigurationList = A10000000000000000000009 /* Build configuration list for PBXProject "Qopy" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A10000000000000000000001;
+			productRefGroup = A10000000000000000000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A10000000000000000000005 /* Qopy */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A10000000000000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000011 /* Assets.xcassets in Resources */,
+				B1000000000000000000002B /* Qopy.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A10000000000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000020 /* QopyApp.swift in Sources */,
+				B10000000000000000000021 /* AppModel.swift in Sources */,
+				B10000000000000000000022 /* SendQRView.swift in Sources */,
+				B10000000000000000000023 /* ReceiveScannerView.swift in Sources */,
+				B10000000000000000000024 /* QRScanner.swift in Sources */,
+				B10000000000000000000025 /* QRCodeGenerator.swift in Sources */,
+				B10000000000000000000026 /* SelectionCapture.swift in Sources */,
+				B10000000000000000000027 /* TextPayload.swift in Sources */,
+				B10000000000000000000028 /* HotkeyManager.swift in Sources */,
+				B10000000000000000000029 /* ServiceProvider.swift in Sources */,
+				B1000000000000000000002A /* GlassChrome.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A1000000000000000000000B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A1000000000000000000000C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		A1000000000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Qopy/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qopy.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1000000000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Qopy/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qopy.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A10000000000000000000009 /* Build configuration list for PBXProject "Qopy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000000B /* Debug */,
+				A1000000000000000000000C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1000000000000000000000A /* Build configuration list for PBXNativeTarget "Qopy" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1000000000000000000000D /* Debug */,
+				A1000000000000000000000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A1000000000000000000000F /* Project object */;
+}

@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Xcode
+Mac/build/
+Mac/build-release/
+Mac/DerivedData/
+*.xcuserstate
+xcuserdata/
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Release artifacts
+dist/
+
+# Swift / SPM
+.build/
+.swiftpm/
+
+# Editors
+.idea/
+.vscode/

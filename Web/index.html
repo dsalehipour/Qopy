@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#d8dee8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Qopy</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="vendor/qrcode.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="brand">
+      <p class="eyebrow">Qopy</p>
+      <h1>Send to Mac</h1>
+    </header>
+
+    <section class="glass card">
+      <label class="field-label" for="text">Paste text</label>
+      <textarea id="text" rows="5" placeholder="Paste anything…" autofocus></textarea>
+      <div class="meta">
+        <span id="byte-count">0 / 1200</span>
+        <span id="warn" class="warn" hidden></span>
+      </div>
+
+      <div id="qr-wrap" class="qr-wrap" hidden>
+        <div class="qr-plate">
+          <canvas id="qr"></canvas>
+        </div>
+        <p class="hint">Point your Mac camera at this code</p>
+      </div>
+
+      <p id="empty-hint" class="hint empty">QR appears here after you paste</p>
+    </section>
+  </main>
+</body>
+</html>
