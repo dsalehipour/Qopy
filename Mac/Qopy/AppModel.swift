@@ -46,7 +46,7 @@ final class AppModel: ObservableObject {
             sendWarning = nil
         } else {
             let bytes = TextPayload.utf8ByteCount(text)
-            sendWarning = "Text is \(bytes) bytes — over the \(TextPayload.maxUTF8Bytes)-byte QR limit. Shorten it for now (chunking comes later)."
+            sendWarning = "Text is \(bytes) bytes (over the \(TextPayload.maxUTF8Bytes)-byte QR limit). Shorten it for now (chunking comes later)."
         }
         isSendPresented = true
         openSendWindow()

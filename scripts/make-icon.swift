@@ -17,8 +17,8 @@
 // room macOS expects for the shadow it draws. Artwork scaled to the full canvas looks oversized
 // beside everything else in the Dock, which is the usual tell of an icon made by hand.
 //
-// The PNG output exists because anywhere the artwork is shown outside the app — a README, most of
-// all — needs the same cut corners for the same reason: on any background that is not black, the
+// The PNG output exists because anywhere the artwork is shown outside the app (a README, most of
+// all) needs the same cut corners for the same reason: on any background that is not black, the
 // unmasked source shows four dark triangles. It shares this path rather than getting a mask of its
 // own so the two silhouettes cannot drift apart. What it drops is the shadow margin, there being
 // no Dock shadow to leave room for: a transparent border would only make the image render smaller
@@ -60,7 +60,7 @@ guard let image = NSImage(contentsOfFile: sourcePath),
 ///
 /// Such artwork usually wears a rounded shape of its own, floating on a background that fills the
 /// corners. Clipping that to a squircle rounds something already round, and the background caught
-/// between the two curves survives as four dark slivers at the corners — the tell of an icon
+/// between the two curves survives as four dark slivers at the corners (the tell of an icon
 /// masked without looking at it.
 ///
 /// The background is found by flooding inwards from the corners rather than by matching a colour
@@ -256,7 +256,8 @@ func writeICNS() throws {
 }
 
 func writePNG(at size: Int) throws {
-    try render(at: size, bodyFraction: 1).write(to: destination)
+    // Leave a little transparent margin so GitHub/browsers don’t chew the squircle edge when scaling.
+    try render(at: size, bodyFraction: 0.92).write(to: destination)
 }
 
 switch destination.pathExtension.lowercased() {

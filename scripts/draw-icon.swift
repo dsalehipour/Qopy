@@ -1,12 +1,12 @@
 #!/usr/bin/env swift
-// Draws Qopy's source icon artwork (full-bleed, no floating card).
+// Draws Qopy's source icon (full-bleed).
 //
 //     swift scripts/draw-icon.swift assets/icon.png
 //
-// Then mask to a macOS squircle with:
+// Mask to a macOS squircle:
 //
 //     swift scripts/make-icon.swift --full-bleed assets/icon.png Mac/Qopy/Qopy.icns
-//     swift scripts/make-icon.swift --full-bleed assets/icon.png assets/icon-rounded.png 384
+//     swift scripts/make-icon.swift --full-bleed assets/icon.png assets/app-icon.png 384
 
 import AppKit
 
@@ -28,12 +28,10 @@ guard let ctx = CGContext(
     exit(1)
 }
 
-let bounds = CGRect(x: 0, y: 0, width: S, height: S)
-
-// Soft slate gradient — matches the product tone, fills edge to edge.
+// Soft slate gradient, edge to edge.
 let colors = [
-    NSColor(srgbRed: 0.48, green: 0.55, blue: 0.62, alpha: 1).cgColor,
-    NSColor(srgbRed: 0.32, green: 0.38, blue: 0.45, alpha: 1).cgColor,
+    NSColor(srgbRed: 0.50, green: 0.57, blue: 0.64, alpha: 1).cgColor,
+    NSColor(srgbRed: 0.30, green: 0.36, blue: 0.43, alpha: 1).cgColor,
 ] as CFArray
 if let gradient = CGGradient(colorsSpace: ctx.colorSpace, colors: colors, locations: [0, 1]) {
     ctx.drawLinearGradient(
@@ -44,39 +42,40 @@ if let gradient = CGGradient(colorsSpace: ctx.colorSpace, colors: colors, locati
     )
 }
 
-func drawCornerBracket(center: CGPoint, rotationTurns: Int) {
-    let box: CGFloat = 210
-    let stroke: CGFloat = 36
-    let coreInset: CGFloat = 58
-    ctx.saveGState()
-    ctx.translateBy(x: center.x, y: center.y)
-    ctx.rotate(by: CGFloat(rotationTurns) * .pi / 2)
-    let origin = CGPoint(x: -box / 2, y: -box / 2)
+/// Classic QR finder: outer ring + inner eye. Drawn as filled shapes (no strokes)
+/// so edges stay crisp at every icon size.
+func drawFinder(center: CGPoint, outer: CGFloat) {
+    let ring: CGFloat = outer * 0.16
+    let gap: CGFloat = outer * 0.14
+    let eye = outer - (ring + gap) * 2
+    let radius: CGFloat = outer * 0.12
 
-    let path = CGMutablePath()
-    path.move(to: CGPoint(x: origin.x, y: origin.y + box))
-    path.addLine(to: CGPoint(x: origin.x, y: origin.y))
-    path.addLine(to: CGPoint(x: origin.x + box, y: origin.y))
-    ctx.setStrokeColor(NSColor.white.cgColor)
-    ctx.setLineWidth(stroke)
-    ctx.setLineCap(.round)
-    ctx.setLineJoin(.round)
-    ctx.addPath(path)
-    ctx.strokePath()
+    func roundedRect(_ rect: CGRect) -> CGPath {
+        CGPath(roundedRect: rect, cornerWidth: radius, cornerHeight: radius, transform: nil)
+    }
 
-    let coreSize = box - coreInset * 2
-    let core = CGRect(x: origin.x + coreInset, y: origin.y + coreInset, width: coreSize, height: coreSize)
+    let outerRect = CGRect(x: center.x - outer / 2, y: center.y - outer / 2, width: outer, height: outer)
+    let holeRect = outerRect.insetBy(dx: ring, dy: ring)
+    let eyeRect = CGRect(x: center.x - eye / 2, y: center.y - eye / 2, width: eye, height: eye)
+
+    // Outer rounded square
+    ctx.addPath(roundedRect(outerRect))
+    // Punch the middle (even-odd)
+    ctx.addPath(roundedRect(holeRect))
     ctx.setFillColor(NSColor.white.cgColor)
-    ctx.addPath(CGPath(roundedRect: core, cornerWidth: 10, cornerHeight: 10, transform: nil))
+    ctx.fillPath(using: .evenOdd)
+
+    // Inner eye
+    ctx.addPath(roundedRect(eyeRect))
     ctx.fillPath()
-    ctx.restoreGState()
 }
 
-// Finder triad: TL, TR, BL — classic QR silhouette.
-let margin: CGFloat = 280
-drawCornerBracket(center: CGPoint(x: margin, y: S - margin), rotationTurns: 0)
-drawCornerBracket(center: CGPoint(x: S - margin, y: S - margin), rotationTurns: 1)
-drawCornerBracket(center: CGPoint(x: margin, y: margin), rotationTurns: 3)
+let outer: CGFloat = 250
+let inset: CGFloat = 220
+drawFinder(center: CGPoint(x: inset + outer / 2, y: S - inset - outer / 2), outer: outer) // TL
+drawFinder(center: CGPoint(x: S - inset - outer / 2, y: S - inset - outer / 2), outer: outer) // TR
+drawFinder(center: CGPoint(x: inset + outer / 2, y: inset + outer / 2), outer: outer) // BL
+
 guard let image = ctx.makeImage(),
       let data = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
     FileHandle.standardError.write(Data("draw-icon: encode failed\n".utf8))

@@ -4,7 +4,7 @@
 //
 //     swift scripts/make-button.swift assets/download-button.png
 //
-// GitHub strips CSS from a README, so a button cannot be styled into being — it has to arrive as an
+// GitHub strips CSS from a README, so a button cannot be styled into being: it has to arrive as an
 // image wrapped in a link. Hence a drawn one rather than a badge service: nothing to fetch at page
 // load, nothing to go down, and the shape can be the panel's own instead of somebody else's.
 //
@@ -28,7 +28,7 @@ let scale: CGFloat = 3
 let label = "Download for macOS"
 let font = NSFont.systemFont(ofSize: 17 * scale, weight: .semibold)
 
-/// Slate blue from the app icon — dark enough for white label text.
+/// Slate blue from the app icon: dark enough for white label text.
 let fill = NSColor(srgbRed: 0.36, green: 0.42, blue: 0.49, alpha: 1)
 let ink = NSColor.white
 

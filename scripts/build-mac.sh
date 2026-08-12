@@ -14,7 +14,7 @@ IDENTITY="qopy-dev"
 if security find-identity -v -p codesigning | grep -q "\"$IDENTITY\""; then
     codesign --force --deep --sign "$IDENTITY" --identifier com.qopy.app "$APP"
 else
-    echo "==> no '$IDENTITY' identity found — signing ad-hoc."
+    echo "==> no '$IDENTITY' identity found: signing ad-hoc."
     echo "    Permissions will need re-approving after every build."
     echo "    Run once: scripts/create-signing-identity.sh"
     codesign --force --deep --sign - --identifier com.qopy.app "$APP"

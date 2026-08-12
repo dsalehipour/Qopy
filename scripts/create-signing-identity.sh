@@ -3,7 +3,7 @@
 #
 # macOS pins Accessibility / Camera grants to the app's signature. Ad-hoc signing
 # changes every build, so those grants silently lapse. A fixed local certificate
-# keeps the signature stable — grant once, keep it.
+# keeps the signature stable: grant once, keep it.
 #
 # Self-signed and local only. Run once per machine.
 set -euo pipefail
@@ -12,7 +12,7 @@ IDENTITY="qopy-dev"
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
 
 if security find-identity -v -p codesigning | grep -q "\"$IDENTITY\""; then
-    echo "'$IDENTITY' already exists — nothing to do."
+    echo "'$IDENTITY' already exists: nothing to do."
     exit 0
 fi
 

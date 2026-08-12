@@ -1,10 +1,10 @@
 <div align="center">
 
-<img src="assets/icon-rounded.png" alt="" width="112">
+<img src="assets/app-icon.png" alt="Qopy" width="128">
 
 # Qopy
 
-**Move text between your Mac and Android phone with a QR code — no accounts, no cloud, no cables.**
+**Move text between your Mac and Android phone with a QR code. No accounts, no cloud, no cables.**
 
 <a href="https://github.com/dsalehipour/qopy/releases/latest/download/Qopy.zip"><img src="assets/download-button.png" alt="Download Qopy for macOS" width="234"></a>
 
@@ -19,8 +19,8 @@
 Qopy lives in your menu bar. Select text on the Mac, send it as a QR, scan with your phone’s camera,
 and copy. Or paste on your phone, show a QR, and let the Mac camera pull it onto the clipboard.
 
-Native Swift. Liquid Glass panels. A tiny static webpage for Android — nothing to install on the
-phone beyond a browser.
+Native Swift. Liquid Glass panels. A tiny static webpage for Android (nothing to install on the
+phone beyond a browser).
 
 ## Install
 
@@ -28,7 +28,7 @@ Apple Silicon, macOS 26 or later.
 
 1. [**Download `Qopy.zip`**](https://github.com/dsalehipour/qopy/releases/latest/download/Qopy.zip),
    unzip it, and drag `Qopy.app` to Applications.
-2. Open it. The first launch may be refused — the app is signed, but not notarized by Apple.
+2. Open it. The first launch may be refused (the app is signed, but not notarized by Apple).
 3. Go to **System Settings › Privacy & Security**, scroll to Security, and click **Open Anyway**.
 4. When prompted, allow **Accessibility** (reading the current selection) and **Camera** (receive).
 
@@ -51,8 +51,8 @@ scripts/build-release.sh             # → dist/Qopy.app + dist/Qopy.zip
 ```
 
 macOS pins Accessibility and Camera grants to the app’s signature. Ad-hoc signing changes every
-build and silently drops those grants — hence the one-off local `qopy-dev` certificate. Grant
-permissions once after the first stably-signed build.
+build and silently drops those grants, so the one-off local `qopy-dev` certificate exists to keep
+the signature stable. Grant permissions once after the first stably-signed build.
 
 ## How it works
 

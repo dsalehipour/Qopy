@@ -19,7 +19,7 @@ function updateMeter() {
   const over = bytes > MAX_BYTES;
   warnEl.hidden = !over;
   warnEl.textContent = over
-    ? "Too long for one QR — shorten it for now."
+    ? "Too long for one QR. Shorten it for now."
     : "";
   return { bytes, over };
 }
@@ -42,7 +42,7 @@ async function renderQR() {
     return;
   }
 
-  // Raw text — Mac Vision / Android Camera both handle this cleanly.
+  // Raw text: Mac Vision / Android Camera both handle this cleanly.
   await QRCode.toCanvas(qrCanvas, text, {
     width: 280,
     margin: 1,

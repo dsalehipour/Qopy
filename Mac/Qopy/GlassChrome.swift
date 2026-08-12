@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Borderless clear panel — same shell cursed uses. All visible glass comes from
+/// Borderless clear panel: same shell cursed uses. All visible glass comes from
 /// SwiftUI `glassEffect`, not from an AppKit vibrancy fill.
 @MainActor
 enum GlassChrome {
@@ -66,7 +66,7 @@ enum GlassChrome {
     }
 
     /// Outer padding so Liquid Glass shading / shadow isn’t clipped by the window bounds.
-    /// `.regular` blooms farther than `.clear` — keep this generous.
+    /// `.regular` blooms farther than `.clear`: keep this generous.
     static let inset: CGFloat = 48
 
     static let sendCardSize = NSSize(width: 280, height: 320)
