@@ -65,8 +65,26 @@ enum GlassChrome {
         return window
     }
 
-    /// Outer padding so Liquid Glass shading isn’t clipped by the window bounds.
-    static let inset: CGFloat = 14
+    /// Outer padding so Liquid Glass shading / shadow isn’t clipped by the window bounds.
+    /// `.regular` blooms farther than `.clear` — keep this generous.
+    static let inset: CGFloat = 48
+
+    static let sendCardSize = NSSize(width: 280, height: 320)
+    static let receiveCardSize = NSSize(width: 300, height: 320)
+
+    static var sendWindowSize: NSSize {
+        NSSize(
+            width: sendCardSize.width + inset * 2,
+            height: sendCardSize.height + inset * 2
+        )
+    }
+
+    static var receiveWindowSize: NSSize {
+        NSSize(
+            width: receiveCardSize.width + inset * 2,
+            height: receiveCardSize.height + inset * 2
+        )
+    }
 }
 
 private enum AssociatedKeys {

@@ -42,14 +42,14 @@ struct SendQRView: View {
                 }
             }
             .padding(.horizontal, 28)
-            .padding(.top, 36)
-            .padding(.bottom, 28)
-            .frame(width: 280)
-            // `.regular` is the lightest Liquid Glass that still blurs; `.clear` is nearly sharp.
+            .padding(.top, 28)
+            .padding(.bottom, 24)
+            .frame(width: GlassChrome.sendCardSize.width, height: GlassChrome.sendCardSize.height)
             .glassEffect(.regular, in: .rect(cornerRadius: 22, style: .continuous))
         }
+        // Inset must sit outside the glass so the shade can fall off cleanly.
         .padding(GlassChrome.inset)
-        .frame(width: 280 + GlassChrome.inset * 2, height: 360)
+        .frame(width: GlassChrome.sendWindowSize.width, height: GlassChrome.sendWindowSize.height)
     }
 
     private var byteLabel: String {

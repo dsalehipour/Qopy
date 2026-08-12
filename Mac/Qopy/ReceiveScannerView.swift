@@ -32,13 +32,13 @@ struct ReceiveScannerView: View {
                 }
             }
             .padding(.horizontal, 28)
-            .padding(.top, 36)
-            .padding(.bottom, 28)
-            .frame(width: 300)
+            .padding(.top, 28)
+            .padding(.bottom, 24)
+            .frame(width: GlassChrome.receiveCardSize.width, height: GlassChrome.receiveCardSize.height)
             .glassEffect(.regular, in: .rect(cornerRadius: 22, style: .continuous))
         }
         .padding(GlassChrome.inset)
-        .frame(width: 300 + GlassChrome.inset * 2, height: 360)
+        .frame(width: GlassChrome.receiveWindowSize.width, height: GlassChrome.receiveWindowSize.height)
         .onAppear {
             scanner.onCode = { payload in
                 model.handleScannedPayload(payload)

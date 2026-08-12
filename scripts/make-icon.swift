@@ -27,16 +27,19 @@
 import AppKit
 
 let arguments = CommandLine.arguments
-guard (3...4).contains(arguments.count) else {
+let fullBleed = arguments.contains("--full-bleed")
+let positional = arguments.filter { $0 != "--full-bleed" }
+guard (3...4).contains(positional.count) else {
     FileHandle.standardError.write(Data("""
-        usage: make-icon.swift <source.png> <out.icns>
-               make-icon.swift <source.png> <out.png> [size]
+        usage: make-icon.swift [--full-bleed] <source.png> <out.icns>
+               make-icon.swift [--full-bleed] <source.png> <out.png> [size]
 
         """.utf8))
     exit(2)
 }
-let sourcePath = arguments[1]
-let destination = URL(fileURLWithPath: arguments[2])
+let sourcePath = positional[1]
+let destination = URL(fileURLWithPath: positional[2])
+let pngSizeArgument = positional.count == 4 ? positional[3] : nil
 
 /// Apple's icon grid: the body is 824 of 1024, so a little over 80%.
 let iconBodyFraction = 824.0 / 1024.0
@@ -184,9 +187,20 @@ func squircle(in rect: CGRect, exponent: Double, segments: Int = 720) -> CGPath 
     return path
 }
 
-let keyed = keyOutBackground(of: source)
-let bounds = artworkBounds(of: keyed)
-guard let artwork = keyed.cropping(to: bounds) else { fail("could not crop the artwork") }
+let keyed = fullBleed ? source : keyOutBackground(of: source)
+let bounds: CGRect
+if fullBleed {
+    bounds = CGRect(x: 0, y: 0, width: source.width, height: source.height)
+} else {
+    bounds = artworkBounds(of: keyed)
+}
+let cropRect = CGRect(
+    x: floor(bounds.origin.x),
+    y: floor(bounds.origin.y),
+    width: ceil(bounds.width),
+    height: ceil(bounds.height)
+)
+guard let artwork = keyed.cropping(to: cropRect) else { fail("could not crop the artwork") }
 
 func render(at size: Int, bodyFraction: Double) -> Data {
     guard let context = CGContext(data: nil, width: size, height: size, bitsPerComponent: 8,
@@ -247,10 +261,10 @@ func writePNG(at size: Int) throws {
 
 switch destination.pathExtension.lowercased() {
 case "icns":
-    if arguments.count == 4 { fail("a size applies to a PNG only; an .icns holds all of them") }
+    if pngSizeArgument != nil { fail("a size applies to a PNG only; an .icns holds all of them") }
     try writeICNS()
 case "png":
-    guard let size = Int(arguments.count == 4 ? arguments[3] : "512"), size > 0 else {
+    guard let size = Int(pngSizeArgument ?? "512"), size > 0 else {
         fail("size must be a positive whole number of pixels")
     }
     try writePNG(at: size)

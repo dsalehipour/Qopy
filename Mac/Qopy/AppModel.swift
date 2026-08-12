@@ -72,13 +72,9 @@ final class AppModel: ObservableObject {
 
     private func openSendWindow() {
         sendWindow?.close()
-        let size = NSSize(
-            width: 280 + GlassChrome.inset * 2,
-            height: 360
-        )
         let window = GlassChrome.makeWindow(
             rootView: SendQRView().environmentObject(self),
-            size: size
+            size: GlassChrome.sendWindowSize
         ) {
             self.sendWindow = nil
             self.isSendPresented = false
@@ -90,13 +86,9 @@ final class AppModel: ObservableObject {
 
     private func openReceiveWindow() {
         tearDownReceiveWindow()
-        let size = NSSize(
-            width: 300 + GlassChrome.inset * 2,
-            height: 360
-        )
         let window = GlassChrome.makeWindow(
             rootView: ReceiveScannerView(scanner: receiveScanner).environmentObject(self),
-            size: size
+            size: GlassChrome.receiveWindowSize
         ) {
             self.handleReceiveWindowClosing()
         }
