@@ -31,17 +31,20 @@ echo "==> publishing $TAG"
 gh release create "$TAG" "$ZIP" --title "Qopy $VERSION" --notes "$(cat <<'NOTES'
 Apple Silicon, macOS 26 or later.
 
+### What's new
+- Phone → Mac: paste on the phone page and tap **Send to Mac** (no second QR / camera needed)
+- **⌃⌥⇧⌘C** sends clipboard to phone
+- Local Wi‑Fi page is served by the Mac app when you receive
+
 ### Install
 
 1. Download `Qopy.zip` below, unzip it, and drag `Qopy.app` to Applications.
 2. Open it. macOS may refuse the first time: the app is signed locally, but not notarized by Apple.
 3. Go to **System Settings › Privacy & Security**, scroll to Security, and click **Open Anyway**.
-4. Grant **Accessibility** (send selection) and **Camera** (receive from phone) when asked.
+4. Grant **Accessibility** when asked. Camera is only needed for the optional QR scan fallback.
 
-Menubar QR icon. **⌃⌥⌘C** sends the current selection; **⌃⌥⌘V** opens receive.
-
-Phone side: open the companion page from this repo’s `Web/` folder on the same Wi‑Fi
-(`python3 -m http.server` works), paste text, and scan with the Mac.
+Menubar QR icon.
+**⌃⌥⌘C** sends the current selection · **⌃⌥⇧⌘C** sends the clipboard · **⌃⌥⌘V** opens receive.
 NOTES
 )"
 

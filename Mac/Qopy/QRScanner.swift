@@ -131,16 +131,20 @@ extension QRScannerController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
 struct CameraPreview: NSViewRepresentable {
     let session: AVCaptureSession
+    var mirrored: Bool = true
 
     func makeNSView(context: Context) -> NSView {
         let view = PreviewView()
         view.previewLayer.session = session
         view.previewLayer.videoGravity = .resizeAspectFill
+        view.applyMirroring(mirrored)
         return view
     }
 
     func updateNSView(_ nsView: NSView, context: Context) {
-        (nsView as? PreviewView)?.previewLayer.session = session
+        guard let view = nsView as? PreviewView else { return }
+        view.previewLayer.session = session
+        view.applyMirroring(mirrored)
     }
 
     static func dismantleNSView(_ nsView: NSView, coordinator: ()) {
@@ -159,6 +163,17 @@ struct CameraPreview: NSViewRepresentable {
         required init?(coder: NSCoder) { fatalError() }
 
         let previewLayer = AVCaptureVideoPreviewLayer()
+
+        func applyMirroring(_ mirrored: Bool) {
+            // Prefer connection mirroring when available; fall back to a layer flip.
+            if let connection = previewLayer.connection, connection.isVideoMirroringSupported {
+                connection.automaticallyAdjustsVideoMirroring = false
+                connection.isVideoMirrored = mirrored
+                previewLayer.setAffineTransform(.identity)
+            } else {
+                previewLayer.setAffineTransform(mirrored ? CGAffineTransform(scaleX: -1, y: 1) : .identity)
+            }
+        }
 
         override func layout() {
             super.layout()

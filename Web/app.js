@@ -1,77 +1,56 @@
-const MAX_BYTES = 1200;
+const MAX_BYTES = 100000;
 
 const textEl = document.getElementById("text");
 const byteCountEl = document.getElementById("byte-count");
 const warnEl = document.getElementById("warn");
-const qrWrap = document.getElementById("qr-wrap");
-const emptyHint = document.getElementById("empty-hint");
-const qrCanvas = document.getElementById("qr");
-
-let renderTimer = null;
+const sendBtn = document.getElementById("send");
+const statusEl = document.getElementById("status");
 
 function utf8Bytes(str) {
   return new TextEncoder().encode(str).length;
 }
 
 function updateMeter() {
-  const bytes = utf8Bytes(textEl.value);
+  const text = textEl.value;
+  const bytes = utf8Bytes(text);
   byteCountEl.textContent = `${bytes} / ${MAX_BYTES}`;
   const over = bytes > MAX_BYTES;
+  const empty = text.trim().length === 0;
   warnEl.hidden = !over;
-  warnEl.textContent = over
-    ? "Too long for one QR. Shorten it for now."
-    : "";
-  return { bytes, over };
+  warnEl.textContent = over ? "Too long to send in one go." : "";
+  sendBtn.disabled = over || empty;
+  return { bytes, over, empty };
 }
 
-async function renderQR() {
+async function sendToMac() {
   const text = textEl.value;
-  const { bytes, over } = updateMeter();
+  const { over, empty } = updateMeter();
+  if (over || empty) return;
 
-  if (!text || over) {
-    qrWrap.hidden = true;
-    emptyHint.hidden = !!text && over ? true : !text ? false : true;
-    if (!text) emptyHint.hidden = false;
-    if (over) emptyHint.hidden = true;
-    return;
-  }
+  sendBtn.disabled = true;
+  statusEl.hidden = false;
+  statusEl.textContent = "Sending…";
 
-  if (typeof QRCode === "undefined") {
-    warnEl.hidden = false;
-    warnEl.textContent = "QR library failed to load.";
-    return;
-  }
-
-  // Raw text: Mac Vision / Android Camera both handle this cleanly.
-  await QRCode.toCanvas(qrCanvas, text, {
-    width: 280,
-    margin: 1,
-    errorCorrectionLevel: "M",
-    color: { dark: "#111111", light: "#ffffff" },
-  });
-
-  qrWrap.hidden = false;
-  emptyHint.hidden = true;
-}
-
-function scheduleRender() {
-  updateMeter();
-  clearTimeout(renderTimer);
-  renderTimer = setTimeout(() => {
-    renderQR().catch((err) => {
-      warnEl.hidden = false;
-      warnEl.textContent = err.message || String(err);
+  try {
+    const res = await fetch("/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
     });
-  }, 120);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      throw new Error(data.error || `Send failed (${res.status})`);
+    }
+    statusEl.textContent = "Copied on your Mac.";
+  } catch (err) {
+    statusEl.textContent = err.message || String(err);
+    sendBtn.disabled = false;
+  }
 }
 
-textEl.addEventListener("input", scheduleRender);
-textEl.addEventListener("change", scheduleRender);
-textEl.addEventListener("paste", () => setTimeout(scheduleRender, 0));
-textEl.addEventListener("keyup", scheduleRender);
-
-// If scripts load after autofill, render once ready.
-window.addEventListener("load", scheduleRender);
-if (document.readyState !== "loading") scheduleRender();
+textEl.addEventListener("input", updateMeter);
+textEl.addEventListener("change", updateMeter);
+textEl.addEventListener("paste", () => setTimeout(updateMeter, 0));
+sendBtn.addEventListener("click", sendToMac);
 
 updateMeter();

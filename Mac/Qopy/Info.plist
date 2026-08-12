@@ -17,15 +17,17 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1.0</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>26.0</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Qopy uses the camera to scan QR codes from your phone and copy the text to your Mac clipboard.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Qopy serves a short-lived page on your Wi‑Fi so your phone can open the paste UI by scanning a QR code.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026</string>
 	<key>NSServices</key>

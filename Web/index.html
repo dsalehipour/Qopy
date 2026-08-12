@@ -7,7 +7,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Qopy</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="vendor/qrcode.min.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -21,18 +20,12 @@
       <label class="field-label" for="text">Paste text</label>
       <textarea id="text" rows="5" placeholder="Paste anything…" autofocus></textarea>
       <div class="meta">
-        <span id="byte-count">0 / 1200</span>
+        <span id="byte-count">0 / 100000</span>
         <span id="warn" class="warn" hidden></span>
       </div>
 
-      <div id="qr-wrap" class="qr-wrap" hidden>
-        <div class="qr-plate">
-          <canvas id="qr"></canvas>
-        </div>
-        <p class="hint">Point your Mac camera at this code</p>
-      </div>
-
-      <p id="empty-hint" class="hint empty">QR appears here after you paste</p>
+      <button id="send" class="primary" type="button" disabled>Send to Mac</button>
+      <p id="status" class="hint" hidden></p>
     </section>
   </main>
 </body>

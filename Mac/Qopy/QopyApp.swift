@@ -16,6 +16,7 @@ struct QopyApp: App {
             Button("Send Clipboard to Phone") {
                 model.sendClipboardToPhone()
             }
+            .keyboardShortcut("c", modifiers: [.control, .option, .shift, .command])
 
             Divider()
 

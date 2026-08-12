@@ -17,7 +17,7 @@
 <br>
 
 Qopy lives in your menu bar. Select text on the Mac, send it as a QR, scan with your phone’s camera,
-and copy. Or paste on your phone, show a QR, and let the Mac camera pull it onto the clipboard.
+and copy. Or open the phone page from your Mac, paste there, and tap **Send to Mac** over Wi‑Fi.
 
 Native Swift. Liquid Glass panels. A tiny static webpage for Android (nothing to install on the
 phone beyond a browser).
@@ -30,7 +30,7 @@ Apple Silicon, macOS 26 or later.
    unzip it, and drag `Qopy.app` to Applications.
 2. Open it. The first launch may be refused (the app is signed, but not notarized by Apple).
 3. Go to **System Settings › Privacy & Security**, scroll to Security, and click **Open Anyway**.
-4. When prompted, allow **Accessibility** (reading the current selection) and **Camera** (receive).
+4. When prompted, allow **Accessibility** (reading the current selection). Camera is only needed if you use the optional QR scan fallback.
 
 There is no Dock icon: look for the QR glyph in the menu bar.
 
@@ -56,15 +56,23 @@ the signature stable. Grant permissions once after the first stably-signed build
 
 ## How it works
 
-| Direction | What you do | What happens |
-| --- | --- | --- |
-| **Mac → Phone** | Select text, then **Send Selection to Phone** (or **⌃⌥⌘C**) | A Liquid Glass panel shows a QR. Scan with Android Camera / Lens → Copy |
-| **Mac → Phone** | Copy text, then **Send Clipboard to Phone** | Same QR flow from the clipboard |
-| **Phone → Mac** | On the phone page, paste text → QR appears | **Receive from Phone…** (**⌃⌥⌘V**) and point the Mac camera at it |
+### Mac → Phone
 
-Esc or a click outside the panel dismisses it. Closing receive stops the camera immediately.
+1. Select text (or copy it).
+2. Choose **Send Selection to Phone** / **Send Clipboard to Phone**, or press **⌃⌥⌘C**.
+3. Scan the QR with Android Camera / Lens and tap **Copy**.
 
-Text over **1200 UTF-8 bytes** is refused with a warning for now (chunking can come later).
+### Phone → Mac
+
+1. Choose **Receive from Phone…** (or **⌃⌥⌘V**). Qopy shows a QR for the phone page on your Wi‑Fi.
+2. Scan that QR with your phone to open the page (same Wi‑Fi as the Mac).
+3. Paste or type text on the phone, then tap **Send to Mac**. It lands on your clipboard over the local network.
+
+No second QR and no camera for the usual path. **Scan QR instead** on the Mac is only a fallback.
+
+Esc or a click outside the panel dismisses it. Closing receive stops the local page server (and camera if it was running).
+
+Mac → phone QR payloads over **1200 UTF-8 bytes** are refused with a warning for now. Phone → Mac over Wi‑Fi allows up to **100000** bytes.
 
 ### Services menu
 
@@ -73,23 +81,21 @@ support Services. If it doesn’t appear yet, log out/in or run `/System/Library
 
 ## Phone companion
 
-The `Web/` folder is a static page: paste text and a QR renders automatically. No backend.
-
-On the same Wi‑Fi as your Mac:
+The `Web/` folder is bundled into the Mac app and served locally when you receive. You can also open
+it yourself for development:
 
 ```bash
 cd Web
 python3 -m http.server 8765
 ```
 
-Open `http://<your-mac-lan-ip>:8765` on the phone.
-
 ## Shortcuts
 
 | Shortcut | Action |
 | --- | --- |
 | **⌃⌥⌘C** | Send current selection to phone |
-| **⌃⌥⌘V** | Receive from phone (camera) |
+| **⌃⌥⇧⌘C** | Send clipboard to phone |
+| **⌃⌥⌘V** | Receive from phone |
 
 ## Development
 
@@ -112,8 +118,9 @@ The release asset is always named `Qopy.zip`, so this link stays valid forever:
 
 ## Privacy
 
-Everything stays on your devices. QR payloads are the text itself (or a small `qopy:` encoding).
-Nothing is uploaded. The phone page is static files you host or serve locally.
+Everything stays on your devices. Mac → phone uses QR payloads of the text itself (or a small
+`qopy:` encoding). Phone → Mac posts over your LAN to the Mac’s local server. Nothing is uploaded
+to the cloud.
 
 ## License
 
