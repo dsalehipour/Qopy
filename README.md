@@ -64,6 +64,12 @@ the signature stable. Grant permissions once after the first stably-signed build
 
 ### Phone → Mac
 
+<div align="center">
+
+<img src="assets/phone-page.png" alt="The Qopy page on a phone: a text box with a pasted link, a Choose photos or files picker, and a Send to Mac button" width="300">
+
+</div>
+
 1. Choose **Receive from Phone…** (or **⌃⌥⌘V**). Qopy shows a QR for the phone page on your Wi‑Fi.
 2. Scan that QR with your phone to open the page (same Wi‑Fi as the Mac).
 3. Paste text, or tap **Choose photos or files**, then tap **Send to Mac**.
