@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 enum ReceivePhase: Equatable {
     case openSite
@@ -17,6 +18,8 @@ final class AppModel: ObservableObject {
     @Published var isReceivePresented = false
     @Published var receivePhase: ReceivePhase = .openSite
     @Published var lastReceived: String?
+    @Published var lastReceivedFiles: [URL] = []
+    @Published var didCopyImage = false
     @Published var phonePageURL: String?
     @Published var phoneServerError: String?
 
@@ -63,12 +66,17 @@ final class AppModel: ObservableObject {
     func openReceiveFromPhone() {
         receivePhase = .openSite
         lastReceived = nil
+        lastReceivedFiles = []
+        didCopyImage = false
         phonePageURL = nil
         phoneServerError = nil
         isReceivePresented = true
         phoneServer.start()
         phoneServer.onTextReceived = { [weak self] text in
             self?.handlePhoneText(text)
+        }
+        phoneServer.onFilesReceived = { [weak self] urls in
+            self?.handlePhoneFiles(urls)
         }
         phonePageURL = phoneServer.baseURL?.absoluteString
         phoneServerError = phoneServer.lastError
@@ -80,8 +88,33 @@ final class AppModel: ObservableObject {
     func handlePhoneText(_ text: String) {
         SelectionCapture.writeToClipboard(text)
         lastReceived = text
+        lastReceivedFiles = []
+        didCopyImage = false
         receivePhase = .copied
         NSSound.beep()
+    }
+
+    func handlePhoneFiles(_ urls: [URL]) {
+        lastReceived = nil
+        lastReceivedFiles = urls
+        // A single image also lands on the clipboard, so ⌘V pastes it straight away.
+        didCopyImage = urls.count == 1 && Self.copyImageToClipboard(urls[0])
+        receivePhase = .copied
+        NSSound.beep()
+    }
+
+    func revealReceivedFiles() {
+        guard !lastReceivedFiles.isEmpty else { return }
+        NSWorkspace.shared.activateFileViewerSelecting(lastReceivedFiles)
+    }
+
+    private static func copyImageToClipboard(_ url: URL) -> Bool {
+        guard let type = UTType(filenameExtension: url.pathExtension),
+              type.conforms(to: .image),
+              let image = NSImage(contentsOf: url) else { return false }
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        return pasteboard.writeObjects([image])
     }
 
     private func observePhoneServer() {

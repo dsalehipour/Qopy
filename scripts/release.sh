@@ -32,8 +32,10 @@ NOTES=$(cat <<'EOF'
 Apple Silicon, macOS 26 or later.
 
 ### Whats new
-- Receive is now one path: scan the QR to open the phone page, paste, and tap Send to Mac
-- Removed the Scan QR instead camera fallback, so the Mac no longer asks for camera access
+- Phones can now send photos and files, not just text. Tap Choose photos or files on the phone page
+- Files are saved to ~/Downloads, and a single image is copied to the clipboard too
+- The receive panel shows what arrived, with Show in Finder
+- Up to 100 MB per transfer, with a progress readout on the phone
 
 ### Install
 

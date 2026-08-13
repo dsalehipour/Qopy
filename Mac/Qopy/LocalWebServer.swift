@@ -2,7 +2,8 @@ import Foundation
 import Network
 import Darwin
 
-/// Tiny HTTP/1.1 server: phone companion files + `POST /send` → Mac clipboard.
+/// Tiny HTTP/1.1 server: phone companion files, `POST /send` → Mac clipboard,
+/// `POST /upload` → files saved to Downloads.
 @MainActor
 final class LocalWebServer: ObservableObject {
     @Published private(set) var baseURL: URL?
@@ -10,6 +11,12 @@ final class LocalWebServer: ObservableObject {
 
     /// Called on the main actor when the phone posts text.
     var onTextReceived: ((String) -> Void)?
+    /// Called on the main actor with the files saved from a phone upload.
+    var onFilesReceived: (([URL]) -> Void)?
+
+    static let maxTextBytes = 100_000
+    static let maxUploadBytes = 100 * 1024 * 1024
+    private static let maxHeaderBytes = 64 * 1024
 
     private var listener: NWListener?
     private let queue = DispatchQueue(label: "qopy.web.server")
@@ -84,14 +91,15 @@ final class LocalWebServer: ObservableObject {
         listener = nil
         baseURL = nil
         onTextReceived = nil
+        onFilesReceived = nil
     }
 
     private func handle(connection: NWConnection) {
         connection.start(queue: queue)
-        receiveRequest(connection: connection, buffer: Data())
+        receiveHeaders(connection: connection, buffer: Data(), searched: 0)
     }
 
-    private func receiveRequest(connection: NWConnection, buffer: Data) {
+    private func receiveHeaders(connection: NWConnection, buffer: Data, searched: Int) {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 64 * 1024) { [weak self] data, _, isComplete, error in
             guard let self else {
                 connection.cancel()
@@ -105,38 +113,76 @@ final class LocalWebServer: ObservableObject {
             var buffer = buffer
             if let data { buffer.append(data) }
 
-            guard let headerRange = buffer.range(of: Data("\r\n\r\n".utf8)) else {
-                if isComplete || buffer.count > 256 * 1024 {
+            let terminator = Data("\r\n\r\n".utf8)
+            // Scan only what arrived since the last pass, minus the overlap a split
+            // terminator needs. Re-scanning from the top would be quadratic.
+            let scanFrom = max(0, searched - (terminator.count - 1))
+            guard let headerRange = buffer.range(of: terminator, in: scanFrom..<buffer.count) else {
+                if isComplete || buffer.count > Self.maxHeaderBytes {
                     connection.cancel()
                     return
                 }
-                self.receiveRequest(connection: connection, buffer: buffer)
+                self.receiveHeaders(connection: connection, buffer: buffer, searched: buffer.count)
                 return
             }
 
-            let headerData = buffer.subdata(in: buffer.startIndex..<headerRange.lowerBound)
+            let headerData = buffer.subdata(in: 0..<headerRange.lowerBound)
             guard let headerText = String(data: headerData, encoding: .utf8) else {
                 self.reply(connection, self.http(status: 400, contentType: "text/plain", body: Data("Bad request".utf8)))
                 return
             }
 
             let contentLength = Self.contentLength(in: headerText) ?? 0
-            let bodyStart = headerRange.upperBound
-            let have = buffer.count - bodyStart
-            if have < contentLength {
-                if isComplete || buffer.count > 256 * 1024 {
-                    connection.cancel()
-                    return
-                }
-                self.receiveRequest(connection: connection, buffer: buffer)
+            if contentLength > Self.bodyLimit(forPath: Self.requestPath(in: headerText)) {
+                self.reply(connection, self.json(status: 413, object: ["ok": false, "error": "too_large"]))
                 return
             }
 
-            let body = contentLength > 0
-                ? buffer.subdata(in: bodyStart..<(bodyStart + contentLength))
-                : Data()
-            let response = self.response(headerText: headerText, body: body)
-            self.reply(connection, response)
+            let body = buffer.subdata(in: headerRange.upperBound..<buffer.count)
+            self.receiveBody(
+                connection: connection,
+                headerText: headerText,
+                body: body,
+                contentLength: contentLength,
+                isComplete: isComplete
+            )
+        }
+    }
+
+    private func receiveBody(
+        connection: NWConnection,
+        headerText: String,
+        body: Data,
+        contentLength: Int,
+        isComplete: Bool
+    ) {
+        if body.count >= contentLength {
+            let exact = contentLength > 0 ? body.subdata(in: 0..<contentLength) : Data()
+            self.reply(connection, self.response(headerText: headerText, body: exact))
+            return
+        }
+        if isComplete {
+            connection.cancel()
+            return
+        }
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 256 * 1024) { [weak self] data, _, isComplete, error in
+            guard let self else {
+                connection.cancel()
+                return
+            }
+            if error != nil {
+                connection.cancel()
+                return
+            }
+            var body = body
+            if let data { body.append(data) }
+            self.receiveBody(
+                connection: connection,
+                headerText: headerText,
+                body: body,
+                contentLength: contentLength,
+                isComplete: isComplete
+            )
         }
     }
 
@@ -149,12 +195,8 @@ final class LocalWebServer: ObservableObject {
     private func response(headerText: String, body: Data) -> Data {
         let lines = headerText.split(separator: "\r\n", omittingEmptySubsequences: false)
         let firstLine = lines.first.map(String.init) ?? ""
-        let parts = firstLine.split(separator: " ")
-        let method = parts.first.map(String.init)?.uppercased() ?? "GET"
-        var path = parts.count > 1 ? String(parts[1]) : "/"
-        if let q = path.firstIndex(of: "?") {
-            path = String(path[..<q])
-        }
+        let method = firstLine.split(separator: " ").first.map(String.init)?.uppercased() ?? "GET"
+        var path = Self.requestPath(in: headerText)
         if path.contains("..") {
             return http(status: 400, contentType: "text/plain", body: Data("Bad request".utf8))
         }
@@ -173,6 +215,10 @@ final class LocalWebServer: ObservableObject {
 
         if path == "/send" && method == "POST" {
             return handleSend(body: body, headers: headerText)
+        }
+
+        if path == "/upload" && method == "POST" {
+            return handleUpload(body: body, headers: headerText)
         }
 
         if path == "/" { path = "/index.html" }
@@ -196,11 +242,6 @@ final class LocalWebServer: ObservableObject {
     }
 
     private func handleSend(body: Data, headers: String) -> Data {
-        let maxBytes = 100_000
-        guard body.count <= maxBytes else {
-            return http(status: 413, contentType: "application/json", body: Data(#"{"ok":false,"error":"too_long"}"#.utf8))
-        }
-
         let contentType = Self.headerValue("Content-Type", in: headers)?.lowercased() ?? "text/plain"
         var text: String?
 
@@ -223,14 +264,44 @@ final class LocalWebServer: ObservableObject {
 
         let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         guard !trimmed.isEmpty else {
-            return http(status: 400, contentType: "application/json", body: Data(#"{"ok":false,"error":"empty"}"#.utf8))
+            return json(status: 400, object: ["ok": false, "error": "empty"])
+        }
+        guard trimmed.utf8.count <= Self.maxTextBytes else {
+            return json(status: 413, object: ["ok": false, "error": "too_long"])
         }
 
         Task { @MainActor in
             self.onTextReceived?(trimmed)
         }
 
-        return http(status: 200, contentType: "application/json", body: Data(#"{"ok":true}"#.utf8))
+        return json(status: 200, object: ["ok": true])
+    }
+
+    private func handleUpload(body: Data, headers: String) -> Data {
+        let contentType = Self.headerValue("Content-Type", in: headers) ?? ""
+        guard let boundary = Self.multipartBoundary(in: contentType) else {
+            return json(status: 400, object: ["ok": false, "error": "bad_form"])
+        }
+
+        let files = Self.multipartFiles(body: body, boundary: boundary)
+        guard !files.isEmpty else {
+            return json(status: 400, object: ["ok": false, "error": "empty"])
+        }
+
+        var saved: [URL] = []
+        for file in files {
+            guard let url = Self.save(file) else {
+                // Usually Downloads access was refused; the panel says so.
+                return json(status: 500, object: ["ok": false, "error": "write_failed"])
+            }
+            saved.append(url)
+        }
+
+        Task { @MainActor in
+            self.onFilesReceived?(saved)
+        }
+
+        return json(status: 200, object: ["ok": true, "saved": saved.map(\.lastPathComponent)])
     }
 
     private func http(
@@ -265,6 +336,145 @@ final class LocalWebServer: ObservableObject {
         var data = Data(header.utf8)
         data.append(body)
         return data
+    }
+
+    private func json(status: Int, object: [String: Any]) -> Data {
+        let body = (try? JSONSerialization.data(withJSONObject: object)) ?? Data(#"{"ok":false}"#.utf8)
+        return http(status: status, contentType: "application/json", body: body)
+    }
+
+    // MARK: - Uploads
+
+    struct UploadedFile {
+        let filename: String
+        let data: Data
+    }
+
+    private static func multipartBoundary(in contentType: String) -> String? {
+        guard contentType.lowercased().contains("multipart/form-data") else { return nil }
+        for piece in contentType.split(separator: ";") {
+            let trimmed = piece.trimmingCharacters(in: .whitespaces)
+            guard trimmed.lowercased().hasPrefix("boundary=") else { continue }
+            var value = String(trimmed.dropFirst("boundary=".count))
+            if value.count >= 2, value.hasPrefix("\""), value.hasSuffix("\"") {
+                value = String(value.dropFirst().dropLast())
+            }
+            return value.isEmpty ? nil : value
+        }
+        return nil
+    }
+
+    private static func multipartFiles(body: Data, boundary: String) -> [UploadedFile] {
+        let delimiter = Data("\r\n--\(boundary)".utf8)
+        // The opening delimiter has no leading CRLF; prepend one so every
+        // delimiter in the stream looks the same.
+        var data = Data("\r\n".utf8)
+        data.append(body)
+
+        var files: [UploadedFile] = []
+        guard var current = data.range(of: delimiter) else { return [] }
+
+        while true {
+            let partStart = current.upperBound
+            // "--" right after a delimiter closes the stream.
+            if data.count >= partStart + 2, data[partStart] == 0x2D, data[partStart + 1] == 0x2D {
+                break
+            }
+            guard let next = data.range(of: delimiter, in: partStart..<data.count) else { break }
+            if let file = parsePart(data.subdata(in: partStart..<next.lowerBound)) {
+                files.append(file)
+            }
+            current = next
+        }
+
+        return files
+    }
+
+    private static func parsePart(_ raw: Data) -> UploadedFile? {
+        guard let separator = raw.range(of: Data("\r\n\r\n".utf8)) else { return nil }
+        guard let headerText = String(data: raw.subdata(in: 0..<separator.lowerBound), encoding: .utf8),
+              let disposition = headerValue("Content-Disposition", in: headerText),
+              let filename = filename(inDisposition: disposition) else { return nil }
+
+        let content = raw.subdata(in: separator.upperBound..<raw.count)
+        guard !content.isEmpty else { return nil }
+        return UploadedFile(filename: filename, data: content)
+    }
+
+    private static func filename(inDisposition disposition: String) -> String? {
+        for piece in disposition.split(separator: ";") {
+            let trimmed = piece.trimmingCharacters(in: .whitespaces)
+            let lowered = trimmed.lowercased()
+
+            if lowered.hasPrefix("filename*=") {
+                let value = String(trimmed.dropFirst("filename*=".count))
+                if let marker = value.range(of: "''"),
+                   let decoded = String(value[marker.upperBound...]).removingPercentEncoding,
+                   !decoded.isEmpty {
+                    return sanitized(decoded)
+                }
+            }
+
+            if lowered.hasPrefix("filename=") {
+                var value = String(trimmed.dropFirst("filename=".count))
+                if value.count >= 2, value.hasPrefix("\""), value.hasSuffix("\"") {
+                    value = String(value.dropFirst().dropLast())
+                }
+                if !value.isEmpty { return sanitized(value) }
+            }
+        }
+        return nil
+    }
+
+    /// Keeps an uploaded name from escaping Downloads or naming a directory.
+    private static func sanitized(_ filename: String) -> String {
+        let base = (filename as NSString).lastPathComponent
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: ":", with: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if base.isEmpty || base == "." || base == ".." { return "upload" }
+        return String(base.prefix(200))
+    }
+
+    private static func save(_ file: UploadedFile) -> URL? {
+        guard let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let target = uniqueURL(in: downloads, filename: file.filename)
+        do {
+            try file.data.write(to: target, options: .atomic)
+            return target
+        } catch {
+            return nil
+        }
+    }
+
+    private static func uniqueURL(in directory: URL, filename: String) -> URL {
+        var candidate = directory.appendingPathComponent(filename)
+        let base = (filename as NSString).deletingPathExtension
+        let ext = (filename as NSString).pathExtension
+        var index = 2
+        while FileManager.default.fileExists(atPath: candidate.path) {
+            let name = ext.isEmpty ? "\(base) \(index)" : "\(base) \(index).\(ext)"
+            candidate = directory.appendingPathComponent(name)
+            index += 1
+        }
+        return candidate
+    }
+
+    private static func requestPath(in headerText: String) -> String {
+        let firstLine = headerText.split(separator: "\r\n", omittingEmptySubsequences: false).first.map(String.init) ?? ""
+        let parts = firstLine.split(separator: " ")
+        var path = parts.count > 1 ? String(parts[1]) : "/"
+        if let q = path.firstIndex(of: "?") {
+            path = String(path[..<q])
+        }
+        return path
+    }
+
+    private static func bodyLimit(forPath path: String) -> Int {
+        // Text arrives as JSON, so allow a little headroom over the text limit.
+        path == "/upload" ? maxUploadBytes : maxTextBytes + 16 * 1024
     }
 
     private func mime(for url: URL) -> String {

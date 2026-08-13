@@ -127,6 +127,46 @@ button.primary:not(:disabled):active {
   transform: scale(0.98);
 }
 
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.rule::before,
+.rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(28, 28, 30, 0.12);
+}
+
+.picker {
+  display: block;
+  border-radius: 14px;
+  border: 1px dashed rgba(28, 28, 30, 0.25);
+  background: rgba(255, 255, 255, 0.45);
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker:active {
+  transform: scale(0.98);
+}
+
+.picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .hint {
   margin: 0;
   font-size: 14px;

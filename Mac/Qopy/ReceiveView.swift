@@ -27,6 +27,32 @@ struct ReceiveView: View {
                 .foregroundStyle(.red.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 240)
+        } else if model.receivePhase == .copied, !model.lastReceivedFiles.isEmpty {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 56, weight: .regular))
+                .foregroundStyle(.primary.opacity(0.85))
+                .frame(width: 224, height: 132)
+
+            VStack(spacing: 3) {
+                Text(model.didCopyImage ? "Copied and saved" : "Saved to Downloads")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.primary.opacity(0.9))
+                Text(fileSummary)
+                    .font(.system(size: 13, weight: .medium, design: .rounded))
+                    .foregroundStyle(.primary.opacity(0.45))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .frame(maxWidth: 240)
+            }
+
+            Button(action: { model.revealReceivedFiles() }) {
+                Text("Show in Finder")
+                    .font(.system(size: 13, weight: .medium))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(.primary.opacity(0.55))
         } else if model.receivePhase == .copied, let text = model.lastReceived {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 56, weight: .regular))
@@ -67,6 +93,12 @@ struct ReceiveView: View {
             ProgressView()
                 .frame(width: 224, height: 224)
         }
+    }
+
+    private var fileSummary: String {
+        let files = model.lastReceivedFiles
+        if files.count == 1 { return preview(files[0].lastPathComponent) }
+        return "\(files.count) files"
     }
 
     private func preview(_ text: String) -> String {

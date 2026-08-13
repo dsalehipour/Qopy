@@ -4,7 +4,7 @@
 
 # Qopy
 
-**Move text between your Mac and Android phone with a QR code. No accounts, no cloud, no cables.**
+**Move text, photos, and files between your Mac and Android phone. No accounts, no cloud, no cables.**
 
 <a href="https://github.com/dsalehipour/qopy/releases/latest/download/Qopy.zip"><img src="assets/download-button.png" alt="Download Qopy for macOS" width="234"></a>
 
@@ -17,7 +17,7 @@
 <br>
 
 Qopy lives in your menu bar. Select text on the Mac, send it as a QR, scan with your phone’s camera,
-and copy. Or open the phone page from your Mac, paste there, and tap **Send to Mac** over Wi‑Fi.
+and copy. Or open the phone page from your Mac, then send text, photos, or files back over Wi‑Fi.
 
 Native Swift. Liquid Glass panels. A tiny static webpage for Android (nothing to install on the
 phone beyond a browser).
@@ -66,13 +66,18 @@ the signature stable. Grant permissions once after the first stably-signed build
 
 1. Choose **Receive from Phone…** (or **⌃⌥⌘V**). Qopy shows a QR for the phone page on your Wi‑Fi.
 2. Scan that QR with your phone to open the page (same Wi‑Fi as the Mac).
-3. Paste or type text on the phone, then tap **Send to Mac**. It lands on your clipboard over the local network.
+3. Paste text, or tap **Choose photos or files**, then tap **Send to Mac**.
 
-The Mac never uses its camera: the phone submits the form and the text arrives over the LAN.
+Text lands on the Mac clipboard. Files are saved to **~/Downloads**, and a single image is copied to the
+clipboard as well, so ⌘V pastes it straight into Slack, Figma, or a doc. The panel shows what arrived
+with a **Show in Finder** button.
+
+The Mac never uses its camera: the phone submits the form and everything arrives over the LAN. The first
+transfer asks macOS for access to your Downloads folder.
 
 Esc or a click outside the panel dismisses it. Closing receive stops the local page server.
 
-Mac → phone QR payloads over **1200 UTF-8 bytes** are refused with a warning for now. Phone → Mac over Wi‑Fi allows up to **100000** bytes.
+Mac → phone QR payloads over **1200 UTF-8 bytes** are refused with a warning for now. Phone → Mac over Wi‑Fi allows up to **100000** bytes of text, or **100 MB** per file transfer.
 
 ### Services menu
 
@@ -119,8 +124,8 @@ The release asset is always named `Qopy.zip`, so this link stays valid forever:
 ## Privacy
 
 Everything stays on your devices. Mac → phone uses QR payloads of the text itself (or a small
-`qopy:` encoding). Phone → Mac posts over your LAN to the Mac’s local server. Nothing is uploaded
-to the cloud.
+`qopy:` encoding). Phone → Mac posts text and files over your LAN to the Mac’s local server, which
+only runs while the receive panel is open. Nothing is uploaded to the cloud.
 
 ## License
 
