@@ -32,9 +32,10 @@ NOTES=$(cat <<'EOF'
 Apple Silicon, macOS 26 or later.
 
 ### Whats new
-- Phone to Mac: paste on the phone page and tap Send to Mac (no second QR / camera needed)
-- Control-Option-Shift-Command-C sends clipboard to phone
-- Local Wi-Fi page is served by the Mac app when you receive
+- Fixed the phone page loading blank: the local server was sending a malformed HTTP response
+- Send Selection now works in Chromium browsers (Brave, Chrome, Edge) and Electron apps
+- Fixed the copy fallback, which gave up before the copy landed and reported no selection found
+- Send Selection now waits for the hotkey modifiers to be released, so the shortcut copies reliably
 
 ### Install
 

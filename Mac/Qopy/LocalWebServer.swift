@@ -251,18 +251,17 @@ final class LocalWebServer: ObservableObject {
         default: reason = "Error"
         }
         let length = contentLength ?? body.count
-        var header = """
-        HTTP/1.1 \(status) \(reason)\r
-        Content-Type: \(contentType)\r
-        Content-Length: \(length)\r
-        Connection: close\r
-        Access-Control-Allow-Origin: *\r
-        Cache-Control: no-cache\r
-        """
-        for line in extraHeaders {
-            header += "\(line)\r\n"
-        }
-        header += "\r\n"
+        let lines = [
+            "HTTP/1.1 \(status) \(reason)",
+            "Content-Type: \(contentType)",
+            "Content-Length: \(length)",
+            "Connection: close",
+            "Access-Control-Allow-Origin: *",
+            "Cache-Control: no-cache",
+        ] + extraHeaders
+        // The trailing blank line is what separates headers from body; without it
+        // the client keeps reading the body as more headers.
+        let header = lines.joined(separator: "\r\n") + "\r\n\r\n"
         var data = Data(header.utf8)
         data.append(body)
         return data

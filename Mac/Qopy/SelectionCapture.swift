@@ -89,6 +89,7 @@ enum SelectionCapture {
         return nil
     }
 
+    @MainActor
     private static func axSelectedText(in app: NSRunningApplication?) -> String? {
         if let app, let text = axSelectedText(pid: app.processIdentifier) {
             return text
@@ -102,21 +103,47 @@ enum SelectionCapture {
             kAXFocusedUIElementAttribute as CFString,
             &focusedObject
         ) == .success,
-              let focused = focusedObject else { return nil }
-        return selectedText(from: (focused as! AXUIElement))
+              let focused = element(from: focusedObject) else { return nil }
+        return selectedText(from: focused)
     }
 
+    @MainActor
     private static func axSelectedText(pid: pid_t) -> String? {
         let appElement = AXUIElementCreateApplication(pid)
 
+        if let text = axSelectedText(inApp: appElement) {
+            return text
+        }
+
+        // Chromium apps (Chrome, Brave, Edge, Electron) keep their web content out
+        // of the accessibility tree until a client asks for it. This switch turns it
+        // on; the tree takes a moment to build, so poll briefly for the selection.
+        guard AXUIElementSetAttributeValue(
+            appElement,
+            "AXManualAccessibility" as CFString,
+            kCFBooleanTrue
+        ) == .success else { return nil }
+
+        let deadline = Date().addingTimeInterval(0.6)
+        while Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+            if let text = axSelectedText(inApp: appElement) {
+                return text
+            }
+        }
+
+        return nil
+    }
+
+    private static func axSelectedText(inApp appElement: AXUIElement) -> String? {
         var focusedObject: CFTypeRef?
         if AXUIElementCopyAttributeValue(
             appElement,
             kAXFocusedUIElementAttribute as CFString,
             &focusedObject
         ) == .success,
-           let focused = focusedObject,
-           let text = selectedText(from: focused as! AXUIElement) {
+           let focused = element(from: focusedObject),
+           let text = selectedText(from: focused) {
             return text
         }
 
@@ -127,12 +154,17 @@ enum SelectionCapture {
             kAXFocusedWindowAttribute as CFString,
             &windowObject
         ) == .success,
-           let window = windowObject,
-           let text = selectedText(from: window as! AXUIElement) {
+           let window = element(from: windowObject),
+           let text = selectedText(from: window) {
             return text
         }
 
         return nil
+    }
+
+    private static func element(from value: CFTypeRef?) -> AXUIElement? {
+        guard let value, CFGetTypeID(value) == AXUIElementGetTypeID() else { return nil }
+        return (value as! AXUIElement)
     }
 
     private static func selectedText(from element: AXUIElement) -> String? {
@@ -152,7 +184,6 @@ enum SelectionCapture {
     @MainActor
     private static func copySelectionViaClipboard(in app: NSRunningApplication?) -> String? {
         let pasteboard = NSPasteboard.general
-        let savedChangeCount = pasteboard.changeCount
         let savedItems = pasteboard.pasteboardItems?.compactMap { item -> NSPasteboardItem? in
             let copy = NSPasteboardItem()
             var wrote = false
@@ -165,11 +196,16 @@ enum SelectionCapture {
             return wrote ? copy : nil
         }
 
+        // A synthetic ⌘C merges with the modifiers physically held down, so firing
+        // this straight off ⌃⌥⌘C would reach the app as ⌃⌥⌘C and copy nothing.
+        waitForModifiersToClear()
+
         // Activate the source app so ⌘C hits the selection, not the menu bar.
-        app?.activate(options: [.activateIgnoringOtherApps])
-        RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.05))
+        activate(app)
 
         pasteboard.clearContents()
+        // clearContents() bumps the change count, so the baseline has to come after it.
+        let baseline = pasteboard.changeCount
 
         let source = CGEventSource(stateID: .hidSystemState)
         let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x08, keyDown: true) // C
@@ -179,9 +215,9 @@ enum SelectionCapture {
         keyDown?.post(tap: .cghidEventTap)
         keyUp?.post(tap: .cghidEventTap)
 
-        let deadline = Date().addingTimeInterval(0.4)
+        let deadline = Date().addingTimeInterval(0.6)
         while Date() < deadline {
-            if pasteboard.changeCount != savedChangeCount { break }
+            if pasteboard.changeCount != baseline { break }
             RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.02))
         }
 
@@ -195,5 +231,27 @@ enum SelectionCapture {
 
         guard let copied, !copied.isEmpty else { return nil }
         return copied
+    }
+
+    /// Waits for the user to let go of a hotkey before synthetic keys are posted.
+    @MainActor
+    private static func waitForModifiersToClear(timeout: TimeInterval = 0.7) {
+        let watched: NSEvent.ModifierFlags = [.command, .option, .control, .shift]
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if NSEvent.modifierFlags.intersection(watched).isEmpty { return }
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.02))
+        }
+    }
+
+    /// Brings the source app forward and waits for activation to actually land.
+    @MainActor
+    private static func activate(_ app: NSRunningApplication?) {
+        guard let app, !app.isActive else { return }
+        _ = app.activate()
+        let deadline = Date().addingTimeInterval(0.5)
+        while Date() < deadline, !app.isActive {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.02))
+        }
     }
 }
