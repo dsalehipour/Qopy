@@ -17,20 +17,30 @@
     </header>
 
     <section class="glass card">
-      <label class="field-label" for="text">Paste text</label>
-      <textarea id="text" rows="5" placeholder="Paste anything…" autofocus></textarea>
-      <div class="meta">
-        <span id="byte-count">0 / 100000</span>
-        <span id="warn" class="warn" hidden></span>
+      <div id="text-block" class="text-block">
+        <label class="field-label" for="text">Paste text</label>
+        <textarea id="text" rows="5" placeholder="Paste anything…" autofocus></textarea>
+        <div class="meta">
+          <span id="byte-count">0 / 100000</span>
+          <span id="warn" class="warn" hidden></span>
+        </div>
       </div>
 
       <div class="rule"><span>or</span></div>
 
-      <label class="picker" for="files">
+      <div id="selection" class="selection" hidden>
+        <div id="thumbs" class="thumbs"></div>
+        <div class="selection-text">
+          <span id="selection-title" class="selection-title"></span>
+          <span id="selection-sub" class="selection-sub"></span>
+        </div>
+        <button id="clear" class="clear" type="button" aria-label="Remove selected files">✕</button>
+      </div>
+
+      <label id="picker" class="picker" for="files">
         <input id="files" type="file" multiple>
-        <span>Choose photos or files</span>
+        <span id="picker-label">Choose photos or files</span>
       </label>
-      <p id="file-list" class="hint" hidden></p>
 
       <button id="send" class="primary" type="button" disabled>Send to Mac</button>
       <p id="status" class="hint" hidden></p>

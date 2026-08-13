@@ -1,13 +1,25 @@
 const MAX_BYTES = 100000;
 const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
 
+const textBlockEl = document.getElementById("text-block");
 const textEl = document.getElementById("text");
 const byteCountEl = document.getElementById("byte-count");
 const warnEl = document.getElementById("warn");
 const filesEl = document.getElementById("files");
-const fileListEl = document.getElementById("file-list");
+const pickerEl = document.getElementById("picker");
+const pickerLabelEl = document.getElementById("picker-label");
+const selectionEl = document.getElementById("selection");
+const thumbsEl = document.getElementById("thumbs");
+const selectionTitleEl = document.getElementById("selection-title");
+const selectionSubEl = document.getElementById("selection-sub");
+const clearBtn = document.getElementById("clear");
 const sendBtn = document.getElementById("send");
 const statusEl = document.getElementById("status");
+
+const DOC_GLYPH = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+  stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>`;
+
+let thumbURLs = [];
 
 function utf8Bytes(str) {
   return new TextEncoder().encode(str).length;
@@ -28,6 +40,66 @@ function setStatus(message) {
   statusEl.textContent = message || "";
 }
 
+function isImage(file) {
+  return (file.type || "").startsWith("image/");
+}
+
+function noun(files) {
+  const word = files.every(isImage) ? "photo" : "file";
+  return files.length === 1 ? word : `${files.length} ${word}s`;
+}
+
+function renderSelection(files, uploadBytes, uploadOver) {
+  thumbURLs.forEach(URL.revokeObjectURL);
+  thumbURLs = [];
+  thumbsEl.replaceChildren();
+
+  selectionEl.hidden = files.length === 0;
+  pickerEl.classList.toggle("compact", files.length > 0);
+  pickerLabelEl.textContent = files.length ? "Choose different files" : "Choose photos or files";
+  textBlockEl.classList.toggle("standby", files.length > 0 && textEl.value.trim().length > 0);
+  if (!files.length) return;
+
+  // At most two boxes wide: past two files it becomes one preview and a count,
+  // otherwise the stack eats the width the filename and size need.
+  const shown = files.length > 2 ? 1 : files.length;
+  files.slice(0, shown).forEach((file) => {
+    if (isImage(file)) {
+      const url = URL.createObjectURL(file);
+      thumbURLs.push(url);
+      const img = document.createElement("img");
+      img.className = "thumb";
+      img.src = url;
+      img.alt = "";
+      // HEIC and friends may not decode in every browser; fall back to the glyph.
+      img.addEventListener("error", () => img.replaceWith(glyphThumb()));
+      thumbsEl.append(img);
+    } else {
+      thumbsEl.append(glyphThumb());
+    }
+  });
+
+  if (files.length > shown) {
+    const more = document.createElement("div");
+    more.className = "thumb more";
+    more.textContent = `+${files.length - shown}`;
+    thumbsEl.append(more);
+  }
+
+  selectionTitleEl.textContent = files.length === 1 ? files[0].name : noun(files);
+  // Readiness first: on a narrow phone the size is what gets ellipsized, not the verdict.
+  selectionSubEl.textContent = uploadOver
+    ? `Too large · ${formatSize(uploadBytes)}`
+    : `Ready to send · ${formatSize(uploadBytes)}`;
+}
+
+function glyphThumb() {
+  const box = document.createElement("div");
+  box.className = "thumb glyph";
+  box.innerHTML = DOC_GLYPH;
+  return box;
+}
+
 function update() {
   const text = textEl.value;
   const bytes = utf8Bytes(text);
@@ -36,22 +108,14 @@ function update() {
 
   byteCountEl.textContent = `${bytes} / ${MAX_BYTES}`;
 
-  if (files.length === 1) {
-    fileListEl.textContent = `${files[0].name} (${formatSize(uploadBytes)})`;
-  } else if (files.length > 1) {
-    fileListEl.textContent = `${files.length} files (${formatSize(uploadBytes)})`;
-  }
-  fileListEl.hidden = files.length === 0;
-
   const textOver = bytes > MAX_BYTES;
   const uploadOver = uploadBytes > MAX_UPLOAD_BYTES;
-  warnEl.hidden = !textOver && !uploadOver;
-  warnEl.textContent = uploadOver
-    ? "Too large to send in one go."
-    : textOver
-      ? "Too long to send in one go."
-      : "";
+  warnEl.hidden = !textOver;
+  warnEl.textContent = textOver ? "Too long to send in one go." : "";
 
+  renderSelection(files, uploadBytes, uploadOver);
+
+  sendBtn.textContent = files.length ? `Send ${noun(files)} to Mac` : "Send to Mac";
   sendBtn.disabled = files.length
     ? uploadOver
     : textOver || text.trim().length === 0;
@@ -144,7 +208,15 @@ async function send() {
 textEl.addEventListener("input", update);
 textEl.addEventListener("change", update);
 textEl.addEventListener("paste", () => setTimeout(update, 0));
-filesEl.addEventListener("change", update);
+filesEl.addEventListener("change", () => {
+  setStatus("");
+  update();
+});
+clearBtn.addEventListener("click", () => {
+  filesEl.value = "";
+  setStatus("");
+  update();
+});
 sendBtn.addEventListener("click", send);
 
 update();

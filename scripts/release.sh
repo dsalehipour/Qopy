@@ -32,10 +32,9 @@ NOTES=$(cat <<'EOF'
 Apple Silicon, macOS 26 or later.
 
 ### Whats new
-- Phones can now send photos and files, not just text. Tap Choose photos or files on the phone page
-- Files are saved to ~/Downloads, and a single image is copied to the clipboard too
-- The receive panel shows what arrived, with Show in Finder
-- Up to 100 MB per transfer, with a progress readout on the phone
+- Picking a file on the phone now shows a real preview card: thumbnail, name, size, and Ready to send
+- The send button names what it will do, for example Send photo to Mac or Send 3 files to Mac
+- A clear button removes the selection without reopening the picker
 
 ### Install
 

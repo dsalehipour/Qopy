@@ -66,7 +66,7 @@ the signature stable. Grant permissions once after the first stably-signed build
 
 <div align="center">
 
-<img src="assets/phone-page.png" alt="The Qopy page on a phone: a text box with a pasted link, a Choose photos or files picker, and a Send to Mac button" width="300">
+<img src="assets/phone-page.png" alt="The Qopy page on a phone with a photo selected: a thumbnail, the filename IMG_4821.jpg, Ready to send with the file size, and a Send photo to Mac button" width="300">
 
 </div>
 

@@ -127,6 +127,18 @@ button.primary:not(:disabled):active {
   transform: scale(0.98);
 }
 
+.text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: opacity 0.15s ease;
+}
+
+/* Files win when both are filled in, so the text half steps back. */
+.text-block.standby {
+  opacity: 0.4;
+}
+
 .rule {
   display: flex;
   align-items: center;
@@ -165,6 +177,106 @@ button.primary:not(:disabled):active {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Once something is picked, the selection card is the loud element. */
+.picker.compact {
+  border: 0;
+  background: none;
+  padding: 4px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+.selection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 22px rgba(40, 55, 80, 0.12);
+}
+
+.thumbs {
+  display: flex;
+  flex: none;
+}
+
+.thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: rgba(28, 28, 30, 0.06);
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(40, 55, 80, 0.16);
+}
+
+.thumb + .thumb {
+  margin-left: -20px;
+}
+
+.thumb.glyph,
+.thumb.more {
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.thumb.glyph svg {
+  width: 26px;
+  height: 26px;
+  opacity: 0.55;
+}
+
+.selection-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.selection-title {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selection-sub {
+  font-size: 14px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clear {
+  appearance: none;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(28, 28, 30, 0.08);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clear:active {
+  transform: scale(0.94);
 }
 
 .hint {
