@@ -10,8 +10,7 @@
 		B10000000000000000000020 /* QopyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000020 /* QopyApp.swift */; };
 		B10000000000000000000021 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000021 /* AppModel.swift */; };
 		B10000000000000000000022 /* SendQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000022 /* SendQRView.swift */; };
-		B10000000000000000000023 /* ReceiveScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* ReceiveScannerView.swift */; };
-		B10000000000000000000024 /* QRScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000024 /* QRScanner.swift */; };
+		B10000000000000000000023 /* ReceiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000023 /* ReceiveView.swift */; };
 		B10000000000000000000025 /* QRCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000025 /* QRCodeGenerator.swift */; };
 		B10000000000000000000026 /* SelectionCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000026 /* SelectionCapture.swift */; };
 		B10000000000000000000027 /* TextPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000027 /* TextPayload.swift */; };
@@ -28,8 +27,7 @@
 		A10000000000000000000020 /* QopyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QopyApp.swift; sourceTree = "<group>"; };
 		A10000000000000000000021 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		A10000000000000000000022 /* SendQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendQRView.swift; sourceTree = "<group>"; };
-		A10000000000000000000023 /* ReceiveScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveScannerView.swift; sourceTree = "<group>"; };
-		A10000000000000000000024 /* QRScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanner.swift; sourceTree = "<group>"; };
+		A10000000000000000000023 /* ReceiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveView.swift; sourceTree = "<group>"; };
 		A10000000000000000000025 /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		A10000000000000000000026 /* SelectionCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionCapture.swift; sourceTree = "<group>"; };
 		A10000000000000000000027 /* TextPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPayload.swift; sourceTree = "<group>"; };
@@ -75,8 +73,7 @@
 				A10000000000000000000020 /* QopyApp.swift */,
 				A10000000000000000000021 /* AppModel.swift */,
 				A10000000000000000000022 /* SendQRView.swift */,
-				A10000000000000000000023 /* ReceiveScannerView.swift */,
-				A10000000000000000000024 /* QRScanner.swift */,
+				A10000000000000000000023 /* ReceiveView.swift */,
 				A10000000000000000000025 /* QRCodeGenerator.swift */,
 				A10000000000000000000026 /* SelectionCapture.swift */,
 				A10000000000000000000027 /* TextPayload.swift */,
@@ -179,8 +176,7 @@
 				B10000000000000000000020 /* QopyApp.swift in Sources */,
 				B10000000000000000000021 /* AppModel.swift in Sources */,
 				B10000000000000000000022 /* SendQRView.swift in Sources */,
-				B10000000000000000000023 /* ReceiveScannerView.swift in Sources */,
-				B10000000000000000000024 /* QRScanner.swift in Sources */,
+				B10000000000000000000023 /* ReceiveView.swift in Sources */,
 				B10000000000000000000025 /* QRCodeGenerator.swift in Sources */,
 				B10000000000000000000026 /* SelectionCapture.swift in Sources */,
 				B10000000000000000000027 /* TextPayload.swift in Sources */,
@@ -232,7 +228,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Qopy/Info.plist;
@@ -241,7 +237,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qopy.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -255,7 +251,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Qopy/Info.plist;
@@ -264,7 +260,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.1.1;
+				MARKETING_VERSION = 1.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.qopy.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

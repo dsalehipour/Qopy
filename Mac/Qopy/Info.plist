@@ -24,8 +24,6 @@
 	<string>26.0</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Qopy uses the camera to scan QR codes from your phone and copy the text to your Mac clipboard.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Qopy serves a short-lived page on your Wi‑Fi so your phone can open the paste UI by scanning a QR code.</string>
 	<key>NSHumanReadableCopyright</key>

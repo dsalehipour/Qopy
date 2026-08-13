@@ -32,10 +32,8 @@ NOTES=$(cat <<'EOF'
 Apple Silicon, macOS 26 or later.
 
 ### Whats new
-- Fixed the phone page loading blank: the local server was sending a malformed HTTP response
-- Send Selection now works in Chromium browsers (Brave, Chrome, Edge) and Electron apps
-- Fixed the copy fallback, which gave up before the copy landed and reported no selection found
-- Send Selection now waits for the hotkey modifiers to be released, so the shortcut copies reliably
+- Receive is now one path: scan the QR to open the phone page, paste, and tap Send to Mac
+- Removed the Scan QR instead camera fallback, so the Mac no longer asks for camera access
 
 ### Install
 

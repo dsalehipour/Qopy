@@ -3,7 +3,6 @@ import SwiftUI
 
 enum ReceivePhase: Equatable {
     case openSite
-    case scanning
     case copied
 }
 
@@ -17,7 +16,6 @@ final class AppModel: ObservableObject {
 
     @Published var isReceivePresented = false
     @Published var receivePhase: ReceivePhase = .openSite
-    @Published var receiveStatus: String = "Hold steady"
     @Published var lastReceived: String?
     @Published var phonePageURL: String?
     @Published var phoneServerError: String?
@@ -26,7 +24,6 @@ final class AppModel: ObservableObject {
     private var receiveWindow: NSWindow?
     private var receiveCloseObserver: NSObjectProtocol?
     private var serverURLObserver: NSObjectProtocol?
-    let receiveScanner = QRScannerController()
     let phoneServer = LocalWebServer()
 
     func sendSelectionToPhone() {
@@ -65,7 +62,6 @@ final class AppModel: ObservableObject {
 
     func openReceiveFromPhone() {
         receivePhase = .openSite
-        receiveStatus = "Waiting for phone…"
         lastReceived = nil
         phonePageURL = nil
         phoneServerError = nil
@@ -81,35 +77,11 @@ final class AppModel: ObservableObject {
         openReceiveWindow()
     }
 
-    func advanceReceiveToCamera() {
-        guard receivePhase == .openSite || receivePhase == .copied else { return }
-        receivePhase = .scanning
-        receiveStatus = "Point at the QR on your phone"
-        lastReceived = nil
-    }
-
     func handlePhoneText(_ text: String) {
         SelectionCapture.writeToClipboard(text)
         lastReceived = text
-        receiveStatus = "Copied to clipboard."
         receivePhase = .copied
-        receiveScanner.stop()
         NSSound.beep()
-    }
-
-    func handleScannedPayload(_ raw: String) {
-        // Ignore the site URL QR if it somehow hits the camera.
-        if let site = phonePageURL, raw.trimmingCharacters(in: .whitespacesAndNewlines) == site {
-            return
-        }
-        if raw.lowercased().hasPrefix("http://") || raw.lowercased().hasPrefix("https://") {
-            return
-        }
-        guard let text = TextPayload.decode(raw) else {
-            receiveStatus = "Couldn’t read that QR. Try again."
-            return
-        }
-        handlePhoneText(text)
     }
 
     private func observePhoneServer() {
@@ -149,7 +121,7 @@ final class AppModel: ObservableObject {
     private func openReceiveWindow() {
         tearDownReceiveWindow(stopServer: false)
         let window = GlassChrome.makeWindow(
-            rootView: ReceiveScannerView(scanner: receiveScanner).environmentObject(self),
+            rootView: ReceiveView().environmentObject(self),
             size: GlassChrome.receiveWindowSize
         ) {
             self.handleReceiveWindowClosing()
@@ -169,7 +141,6 @@ final class AppModel: ObservableObject {
     }
 
     private func handleReceiveWindowClosing() {
-        receiveScanner.stop()
         phoneServer.stop()
         isReceivePresented = false
         receivePhase = .openSite
@@ -186,7 +157,6 @@ final class AppModel: ObservableObject {
             NotificationCenter.default.removeObserver(receiveCloseObserver)
             self.receiveCloseObserver = nil
         }
-        receiveScanner.stop()
         if stopServer {
             phoneServer.stop()
         }

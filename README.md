@@ -30,7 +30,7 @@ Apple Silicon, macOS 26 or later.
    unzip it, and drag `Qopy.app` to Applications.
 2. Open it. The first launch may be refused (the app is signed, but not notarized by Apple).
 3. Go to **System Settings › Privacy & Security**, scroll to Security, and click **Open Anyway**.
-4. When prompted, allow **Accessibility** (reading the current selection). Camera is only needed if you use the optional QR scan fallback.
+4. When prompted, allow **Accessibility** (reading the current selection). No camera access is needed.
 
 There is no Dock icon: look for the QR glyph in the menu bar.
 
@@ -50,7 +50,7 @@ For a Release zip (what GitHub Releases ships):
 scripts/build-release.sh             # → dist/Qopy.app + dist/Qopy.zip
 ```
 
-macOS pins Accessibility and Camera grants to the app’s signature. Ad-hoc signing changes every
+macOS pins the Accessibility grant to the app’s signature. Ad-hoc signing changes every
 build and silently drops those grants, so the one-off local `qopy-dev` certificate exists to keep
 the signature stable. Grant permissions once after the first stably-signed build.
 
@@ -68,9 +68,9 @@ the signature stable. Grant permissions once after the first stably-signed build
 2. Scan that QR with your phone to open the page (same Wi‑Fi as the Mac).
 3. Paste or type text on the phone, then tap **Send to Mac**. It lands on your clipboard over the local network.
 
-No second QR and no camera for the usual path. **Scan QR instead** on the Mac is only a fallback.
+The Mac never uses its camera: the phone submits the form and the text arrives over the LAN.
 
-Esc or a click outside the panel dismisses it. Closing receive stops the local page server (and camera if it was running).
+Esc or a click outside the panel dismisses it. Closing receive stops the local page server.
 
 Mac → phone QR payloads over **1200 UTF-8 bytes** are refused with a warning for now. Phone → Mac over Wi‑Fi allows up to **100000** bytes.
 
@@ -100,7 +100,7 @@ python3 -m http.server 8765
 ## Development
 
 ```
-Mac/Qopy/     Swift menubar app (Liquid Glass, Vision QR, Accessibility selection)
+Mac/Qopy/     Swift menubar app (Liquid Glass, QR generation, Accessibility selection)
 Web/          Mobile companion page
 scripts/      build, release, signing identity, icon tooling
 assets/       README artwork
