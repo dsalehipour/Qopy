@@ -58,9 +58,14 @@ the signature stable. Grant permissions once after the first stably-signed build
 
 ### Mac → Phone
 
-1. Select text (or copy it).
-2. Choose **Send Selection to Phone** / **Send Clipboard to Phone**, or press **⌃⌥⌘C**.
-3. Scan the QR with Android Camera / Lens and tap **Copy**.
+1. Copy text or an image on your Mac.
+2. Choose **Send Clipboard to Phone** or press **⌃⌥⇧⌘C**. Qopy reads the clipboard at that moment and shows a preview. If you copy something else while the panel is open, click **Use Latest Clipboard** or run the command again.
+3. For text, scan the QR with Android Camera / Lens and tap **Copy**. Text, whitespace, and Unicode are preserved exactly.
+4. For an image, connect both devices to the same Wi-Fi, scan the QR to open the image page, then tap **Save image**. Keep the Mac panel open until the image finishes saving. Touch and hold the image for your browser’s save/copy options. Android browsers on local HTTP generally do not expose programmatic clipboard or sharing APIs; downloading works without them.
+
+You can also choose **Send Image File to Phone…** to pick an image without changing the clipboard. Clipboard screenshots (PNG/TIFF), browser images with an accompanying URL, and a single image copied in Finder are supported. Images are converted to PNG for Android compatibility; animated and multi-page images are sent as a still image.
+
+**Send Selection to Phone** / **⌃⌥⌘C** still sends selected text from the previous app. **Receive from Phone** / **⌃⌥⌘V** shows a LAN address QR for the opposite direction; that address is the phone page, not your clipboard.
 
 ### Phone → Mac
 
@@ -83,7 +88,7 @@ transfer asks macOS for access to your Downloads folder.
 
 Esc or a click outside the panel dismisses it. Closing receive stops the local page server.
 
-Mac → phone QR payloads over **1200 UTF-8 bytes** are refused with a warning for now. Phone → Mac over Wi‑Fi allows up to **100000** bytes of text, or **100 MB** per file transfer.
+Mac → phone text QR payloads over **1200 UTF-8 bytes** are refused with a warning. Images travel over local Wi-Fi rather than inside the QR. Phone → Mac over Wi‑Fi allows up to **100000** bytes of text, or **100 MB** per file transfer.
 
 ### Services menu
 
@@ -115,6 +120,12 @@ Mac/Qopy/     Swift menubar app (Liquid Glass, QR generation, Accessibility sele
 Web/          Mobile companion page
 scripts/      build, release, signing identity, icon tooling
 assets/       README artwork
+```
+
+Regression checks (requires the same Swift toolchain; uses a separate test pasteboard and real local HTTP):
+
+```bash
+scripts/test-transfers.sh
 ```
 
 Release to GitHub (after committing and pushing `main`):

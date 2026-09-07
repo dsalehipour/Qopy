@@ -8,6 +8,9 @@ struct QopyApp: App {
 
     var body: some Scene {
         MenuBarExtra("Qopy", systemImage: "qrcode") {
+            Text("Qopy \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "")")
+            Divider()
+
             Button("Send Selection to Phone") {
                 model.sendSelectionToPhone()
             }
@@ -17,6 +20,10 @@ struct QopyApp: App {
                 model.sendClipboardToPhone()
             }
             .keyboardShortcut("c", modifiers: [.control, .option, .shift, .command])
+
+            Button("Send Image File to Phone…") {
+                model.sendImageFileToPhone()
+            }
 
             Divider()
 

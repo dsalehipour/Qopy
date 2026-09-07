@@ -69,7 +69,7 @@ enum GlassChrome {
     /// `.regular` blooms farther than `.clear`: keep this generous.
     static let inset: CGFloat = 48
 
-    static let sendCardSize = NSSize(width: 280, height: 320)
+    static let sendCardSize = NSSize(width: 340, height: 540)
     static let receiveCardSize = NSSize(width: 300, height: 360)
 
     static var sendWindowSize: NSSize {

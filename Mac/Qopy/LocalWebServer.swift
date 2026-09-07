@@ -23,8 +23,14 @@ final class LocalWebServer: ObservableObject {
     private var root: URL?
     private let preferredPort: UInt16 = 8765
 
-    func start() {
+    private var outgoingImage: ImageTransfer?
+    private let outgoingLock = NSLock()
+
+    func start(outgoingImage: ImageTransfer? = nil) {
         stop()
+        outgoingLock.lock()
+        self.outgoingImage = outgoingImage
+        outgoingLock.unlock()
         lastError = nil
 
         guard let root = Self.webRootURL() else {
@@ -52,7 +58,7 @@ final class LocalWebServer: ObservableObject {
 
             listener.stateUpdateHandler = { [weak self] state in
                 Task { @MainActor in
-                    guard let self else { return }
+                    guard let self, self.listener === listener else { return }
                     switch state {
                     case .ready:
                         let port = listener.port?.rawValue ?? self.preferredPort
@@ -60,7 +66,7 @@ final class LocalWebServer: ObservableObject {
                             self.baseURL = URL(string: "http://\(ip):\(port)/")
                         } else {
                             self.lastError = "Couldn’t find your Mac’s Wi‑Fi address."
-                            self.baseURL = URL(string: "http://127.0.0.1:\(port)/")
+                            self.baseURL = nil
                         }
                     case .failed(let error):
                         self.lastError = error.localizedDescription
@@ -87,6 +93,9 @@ final class LocalWebServer: ObservableObject {
     }
 
     func stop() {
+        outgoingLock.lock()
+        outgoingImage = nil
+        outgoingLock.unlock()
         listener?.cancel()
         listener = nil
         baseURL = nil
@@ -201,6 +210,36 @@ final class LocalWebServer: ObservableObject {
             return http(status: 400, contentType: "text/plain", body: Data("Bad request".utf8))
         }
 
+        outgoingLock.lock()
+        let transfer = outgoingImage
+        outgoingLock.unlock()
+        if let transfer {
+            let prefix = "/transfer/\(transfer.id)"
+            if method == "GET" || method == "HEAD" {
+                if path == prefix + "/image.png" {
+                    return http(status: 200, contentType: "image/png",
+                        body: method == "HEAD" ? Data() : transfer.data,
+                        contentLength: transfer.data.count,
+                        extraHeaders: ["Content-Disposition: inline; filename=\"qopy-image.png\""])
+                }
+                if path == prefix || path == prefix + "/" {
+                    guard let root, let page = try? Data(contentsOf: root.appendingPathComponent("image.html")) else {
+                        return http(status: 500, contentType: "text/plain", body: Data("Page missing".utf8))
+                    }
+                    return http(status: 200, contentType: "text/html; charset=utf-8",
+                        body: method == "HEAD" ? Data() : page, contentLength: page.count)
+                }
+                // Only public assets are available without the random transfer ID.
+                if path != "/style.css" && path != "/image.js" {
+                    return http(status: 404, contentType: "text/plain", body: Data("Transfer unavailable".utf8))
+                }
+            } else {
+                return http(status: 405, contentType: "text/plain", body: Data("Method not allowed".utf8))
+            }
+        } else if path.hasPrefix("/transfer/") {
+            return http(status: 404, contentType: "text/plain", body: Data("Transfer unavailable".utf8))
+        }
+
         if method == "OPTIONS" {
             return http(
                 status: 204,
@@ -263,15 +302,15 @@ final class LocalWebServer: ObservableObject {
         }
 
         let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        guard !trimmed.isEmpty else {
+        guard !trimmed.isEmpty, let text else {
             return json(status: 400, object: ["ok": false, "error": "empty"])
         }
-        guard trimmed.utf8.count <= Self.maxTextBytes else {
+        guard text.utf8.count <= Self.maxTextBytes else {
             return json(status: 413, object: ["ok": false, "error": "too_long"])
         }
 
         Task { @MainActor in
-            self.onTextReceived?(trimmed)
+            self.onTextReceived?(text)
         }
 
         return json(status: 200, object: ["ok": true])
@@ -328,7 +367,9 @@ final class LocalWebServer: ObservableObject {
             "Content-Length: \(length)",
             "Connection: close",
             "Access-Control-Allow-Origin: *",
-            "Cache-Control: no-cache",
+            "Cache-Control: no-store",
+            "X-Content-Type-Options: nosniff",
+            "Referrer-Policy: no-referrer",
         ] + extraHeaders
         // The trailing blank line is what separates headers from body; without it
         // the client keeps reading the body as more headers.

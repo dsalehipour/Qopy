@@ -288,3 +288,30 @@ button.primary:not(:disabled):active {
 }
 
 [hidden] { display: none !important; }
+
+.received-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #fff;
+}
+a.primary {
+  display: block;
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #1c1c1e;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+a.primary:hover, button.primary:not(:disabled):hover { background: #353538; }
+a:focus-visible, button:focus-visible, .picker:focus-within {
+  outline: 3px solid #315ca8;
+  outline-offset: 3px;
+}

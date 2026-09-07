@@ -32,16 +32,17 @@ NOTES=$(cat <<'EOF'
 Apple Silicon, macOS 26 or later.
 
 ### Whats new
-- Picking a file on the phone now shows a real preview card: thumbnail, name, size, and Ready to send
-- The send button names what it will do, for example Send photo to Mac or Send 3 files to Mac
-- A clear button removes the selection without reopening the picker
+- Send clipboard images or choose an image file on your Mac, then scan and save it on Android over Wi-Fi
+- Clipboard images take priority over accompanying URL text, and the send panel previews the content
+- Use Latest Clipboard refreshes an open send panel; text QR codes preserve whitespace and Unicode
+- Independent send and receive sessions keep phone-to-Mac uploads working
 
 ### Install
 
 1. Download Qopy.zip below, unzip it, and drag Qopy.app to Applications.
 2. Open it. macOS may refuse the first time: the app is signed locally, but not notarized by Apple.
 3. Go to System Settings > Privacy & Security, scroll to Security, and click Open Anyway.
-4. Grant Accessibility when asked. Camera is only needed for the optional QR scan fallback.
+4. Grant Accessibility when asked. Images need both devices on the same Wi-Fi.
 
 Menubar QR icon.
 Control-Option-Command-C sends selection. Control-Option-Shift-Command-C sends clipboard. Control-Option-Command-V opens receive.
