@@ -52,6 +52,7 @@ final class AppModel: ObservableObject {
 
     func sendClipboardToPhone(from pasteboard: NSPasteboard = .general) {
         guard let payload = ClipboardPayload.read(from: pasteboard) else {
+            closeSend()
             presentAlert(title: "Nothing to send", message: "Copy text or an image, then try again.")
             return
         }
