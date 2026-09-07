@@ -62,8 +62,7 @@ enum SelectionCapture {
 
     @MainActor
     static func clipboardText() -> String? {
-        let text = NSPasteboard.general.string(forType: .string)?
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let text = NSPasteboard.general.string(forType: .string)
         guard let text, !text.isEmpty else { return nil }
         return text
     }

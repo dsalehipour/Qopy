@@ -14,12 +14,8 @@ enum TextPayload {
     }
 
     static func encodeForQR(_ text: String) -> String {
-        // Raw text scans cleanly on Android Camera / Lens (Copy).
-        // Prefix keeps Mac↔web decoding unambiguous for future chunking.
-        if text.allSatisfy({ $0.isASCII && !$0.isNewline }) || text.utf8.count < 200 {
-            return text
-        }
-        return "qopy:" + encodeBase64URL(text)
+        // Android Camera / Lens can copy the exact text without a custom decoder.
+        text
     }
 
     static func encodeBase64URL(_ text: String) -> String {
