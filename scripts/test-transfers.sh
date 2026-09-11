@@ -15,4 +15,8 @@ xcrun swiftc -swift-version 5 -parse-as-library \
   "$ROOT/Mac/Qopy/SendQRView.swift" \
   "$ROOT/Mac/Qopy/ReceiveView.swift" \
   "$ROOT/tests/TransferTests.swift" -o "$TEST_BUILD/transfers"
-"$TEST_BUILD/transfers" "$ROOT/assets/app-icon.png" "$@"
+"$TEST_BUILD/transfers" \
+  "$ROOT/assets/app-icon.png" \
+  "$ROOT/assets/download-button.png" \
+  "$ROOT/assets/phone-page.png" \
+  "$@"

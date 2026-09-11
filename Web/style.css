@@ -298,6 +298,51 @@ button.primary:not(:disabled):active {
   border-radius: 12px;
   background: #fff;
 }
+
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Several images stack, so each one needs its own frame to read as a unit. */
+.shot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 22px rgba(40, 55, 80, 0.12);
+}
+
+.gallery .received-image {
+  max-height: 44vh;
+}
+
+.shot-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.shot-name {
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.shot-size {
+  flex: none;
+  font-size: 14px;
+  color: var(--muted);
+}
 a.primary {
   display: block;
   border-radius: 14px;

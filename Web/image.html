@@ -4,19 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#d8dee8">
-  <title>Image from Mac · Qopy</title>
+  <title>Images from Mac · Qopy</title>
   <link rel="stylesheet" href="/style.css">
   <script src="/image.js" defer></script>
 </head>
 <body>
   <main class="shell">
-    <header class="brand"><p class="eyebrow">Qopy</p><h1>Image from Mac</h1></header>
+    <header class="brand"><p class="eyebrow">Qopy</p><h1 id="title">Image from Mac</h1></header>
     <section class="glass card">
-      <img id="received-image" class="received-image" alt="Image sent from your Mac">
-      <a id="save-image" class="primary" download="qopy-image.png" hidden>Save image</a>
-      <button id="share-image" class="primary" type="button" hidden>Share image</button>
-      <p id="image-status" class="hint" role="status">Loading image…</p>
-      <p class="hint">Keep Qopy’s send panel open on your Mac until the image is saved. You can also touch and hold the image to save or copy it.</p>
+      <button id="download-all" class="primary" type="button" hidden>Download all</button>
+      <div id="gallery" class="gallery"></div>
+      <p id="image-status" class="hint" role="status">Loading…</p>
+      <p id="image-help" class="hint">Keep Qopy’s send panel open on your Mac until you have saved them. You can also touch and hold an image to save or copy it.</p>
     </section>
   </main>
 </body>

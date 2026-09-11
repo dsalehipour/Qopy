@@ -12,7 +12,7 @@ final class AppModel: ObservableObject {
     static let shared = AppModel()
 
     @Published var sendText: String = ""
-    @Published var sendImage: NSImage?
+    @Published var sendImages: [NSImage] = []
     @Published var sendImageURL: String?
     @Published var sendImageError: String?
     @Published var sendSource = "Clipboard"
@@ -58,33 +58,45 @@ final class AppModel: ObservableObject {
         }
         switch payload {
         case .text(let text): presentSend(text: text, source: "Clipboard")
-        case .image(let data): presentSendImage(data, source: "Clipboard image")
+        case .image(let image): presentSendImages([image], source: "Clipboard image")
         }
     }
 
     func sendImageFileToPhone() {
         let picker = NSOpenPanel()
         picker.allowedContentTypes = [.image]
-        picker.allowsMultipleSelection = false
+        picker.allowsMultipleSelection = true
         picker.canChooseDirectories = false
         picker.prompt = "Send to Phone"
-        guard picker.runModal() == .OK, let url = picker.url else { return }
-        guard let image = NSImage(contentsOf: url), let data = ClipboardPayload.pngData(image) else {
-            presentAlert(title: "Couldn’t read image", message: "Choose an image that Preview can open.")
+        guard picker.runModal() == .OK, !picker.urls.isEmpty else { return }
+        let picked = picker.urls
+        let images = picked.compactMap(OutgoingImage.read(contentsOf:))
+        guard !images.isEmpty else {
+            presentAlert(
+                title: picked.count == 1 ? "Couldn’t read image" : "Couldn’t read those images",
+                message: "Choose images that Preview can open."
+            )
             return
         }
-        presentSendImage(data, source: url.lastPathComponent)
+        presentSendImages(images, source: Self.sourceLabel(for: images))
+        if images.count < picked.count {
+            sendWarning = "Skipped \(picked.count - images.count) file(s) that couldn’t be read."
+        }
     }
 
-    func presentSendImage(_ data: Data, source: String) {
+    static func sourceLabel(for images: [OutgoingImage]) -> String {
+        images.count == 1 ? images[0].filename : "\(images.count) images"
+    }
+
+    func presentSendImages(_ outgoing: [OutgoingImage], source: String) {
         closeSend()
         sendText = ""
         sendWarning = nil
         sendSource = source
-        sendImage = NSImage(data: data)
+        sendImages = outgoing.compactMap { NSImage(data: $0.data) }
         do {
-            let transfer = try ImageTransfer.save(data)
-            sendServer.start(outgoingImage: transfer)
+            let transfer = try ImageTransfer.save(outgoing)
+            sendServer.start(outgoing: transfer)
             sendReadyTask = Task { @MainActor in
                 while !Task.isCancelled {
                     if let error = sendServer.lastError {
@@ -99,7 +111,8 @@ final class AppModel: ObservableObject {
                 }
             }
         } catch {
-            sendImageError = "Couldn’t save the image: \(error.localizedDescription)"
+            let noun = outgoing.count == 1 ? "the image" : "those images"
+            sendImageError = "Couldn’t save \(noun): \(error.localizedDescription)"
         }
         isSendPresented = true
         openSendWindow()
@@ -240,7 +253,7 @@ final class AppModel: ObservableObject {
         sendWindow?.close()
         sendWindow = nil
         isSendPresented = false
-        sendImage = nil
+        sendImages = []
         sendImageURL = nil
         sendImageError = nil
     }

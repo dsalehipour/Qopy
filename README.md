@@ -61,9 +61,15 @@ the signature stable. Grant permissions once after the first stably-signed build
 1. Copy text or an image on your Mac.
 2. Choose **Send Clipboard to Phone** or press **⌃⌥⇧⌘C**. Qopy reads the clipboard at that moment and shows a preview. If you copy something else while the panel is open, click **Use Latest Clipboard** or run the command again.
 3. For text, scan the QR with Android Camera / Lens and tap **Copy**. Text, whitespace, and Unicode are preserved exactly.
-4. For an image, connect both devices to the same Wi-Fi, scan the QR to open the image page, then tap **Save image**. Keep the Mac panel open until the image finishes saving. Touch and hold the image for your browser’s save/copy options. Android browsers on local HTTP generally do not expose programmatic clipboard or sharing APIs; downloading works without them.
+4. For images, connect both devices to the same Wi-Fi and scan the QR to open the image page. Tap **Save** under any image, or **Download all** to take the lot. Keep the Mac panel open until they finish saving. Touch and hold an image for your browser’s save/copy options. Android browsers on local HTTP generally do not expose programmatic clipboard or sharing APIs; downloading works without them.
 
-You can also choose **Send Image File to Phone…** to pick an image without changing the clipboard. Clipboard screenshots (PNG/TIFF), browser images with an accompanying URL, and a single image copied in Finder are supported. Images are converted to PNG for Android compatibility; animated and multi-page images are sent as a still image.
+You can also choose **Send Image File to Phone…** to pick images without changing the clipboard. Select as many as you like: the panel previews the first two with a count, and the phone page lists them all. Clipboard screenshots (PNG/TIFF), browser images with an accompanying URL, and images copied in Finder are supported; animated and multi-page images are sent as a still image.
+
+Every image reaches the phone under its own name, so your browser stops treating each new send as one it
+already has. Picked files keep the name and bytes they have on disk, so a JPEG stays a JPEG. Two files
+with the same name in one send are separated (`shot.png`, `shot 2.png`), and a pasted bitmap, which has
+no name of its own, is timestamped like a screenshot (`Clipboard 2026-09-11 at 10.00.17.png`). A
+clipboard bitmap is still converted to PNG for Android compatibility.
 
 **Send Selection to Phone** / **⌃⌥⌘C** still sends selected text from the previous app. **Receive from Phone** / **⌃⌥⌘V** shows a LAN address QR for the opposite direction; that address is the phone page, not your clipboard.
 

@@ -23,13 +23,13 @@ final class LocalWebServer: ObservableObject {
     private var root: URL?
     private let preferredPort: UInt16 = 8765
 
-    private var outgoingImage: ImageTransfer?
+    private var outgoing: ImageTransfer?
     private let outgoingLock = NSLock()
 
-    func start(outgoingImage: ImageTransfer? = nil) {
+    func start(outgoing: ImageTransfer? = nil) {
         stop()
         outgoingLock.lock()
-        self.outgoingImage = outgoingImage
+        self.outgoing = outgoing
         outgoingLock.unlock()
         lastError = nil
 
@@ -94,7 +94,7 @@ final class LocalWebServer: ObservableObject {
 
     func stop() {
         outgoingLock.lock()
-        outgoingImage = nil
+        outgoing = nil
         outgoingLock.unlock()
         listener?.cancel()
         listener = nil
@@ -211,16 +211,24 @@ final class LocalWebServer: ObservableObject {
         }
 
         outgoingLock.lock()
-        let transfer = outgoingImage
+        let transfer = outgoing
         outgoingLock.unlock()
         if let transfer {
             let prefix = "/transfer/\(transfer.id)"
             if method == "GET" || method == "HEAD" {
-                if path == prefix + "/image.png" {
-                    return http(status: 200, contentType: "image/png",
-                        body: method == "HEAD" ? Data() : transfer.data,
-                        contentLength: transfer.data.count,
-                        extraHeaders: ["Content-Disposition: inline; filename=\"qopy-image.png\""])
+                if path == prefix + "/items.json" {
+                    let manifest = Self.manifest(for: transfer)
+                    return http(status: 200, contentType: "application/json",
+                        body: method == "HEAD" ? Data() : manifest,
+                        contentLength: manifest.count)
+                }
+                let filePrefix = prefix + "/file/"
+                if path.hasPrefix(filePrefix),
+                   let image = Self.image(in: transfer, trailing: String(path.dropFirst(filePrefix.count))) {
+                    return http(status: 200, contentType: image.contentType,
+                        body: method == "HEAD" ? Data() : image.data,
+                        contentLength: image.data.count,
+                        extraHeaders: [Self.contentDisposition(filename: image.filename)])
                 }
                 if path == prefix || path == prefix + "/" {
                     guard let root, let page = try? Data(contentsOf: root.appendingPathComponent("image.html")) else {
@@ -516,6 +524,46 @@ final class LocalWebServer: ObservableObject {
     private static func bodyLimit(forPath path: String) -> Int {
         // Text arrives as JSON, so allow a little headroom over the text limit.
         path == "/upload" ? maxUploadBytes : maxTextBytes + 16 * 1024
+    }
+
+    // MARK: - Outgoing images
+
+    /// The phone page asks for this to learn how many images there are and what
+    /// each one is called.
+    static func manifest(for transfer: ImageTransfer) -> Data {
+        let items: [[String: Any]] = transfer.images.map { image in
+            [
+                "name": image.filename,
+                "url": "/transfer/\(transfer.id)/file/\(image.slug)/\(pathEncoded(image.filename))",
+                "size": image.data.count,
+                "type": image.contentType,
+            ]
+        }
+        return (try? JSONSerialization.data(withJSONObject: items)) ?? Data("[]".utf8)
+    }
+
+    /// `trailing` is `<slug>/<filename>`. Only the slug selects the image; the name
+    /// rides along so each image has its own URL that already reads as the filename.
+    static func image(in transfer: ImageTransfer, trailing: String) -> TransferImage? {
+        let slug = trailing.split(separator: "/", maxSplits: 1).first.map(String.init) ?? trailing
+        return transfer.images.first { $0.slug == slug }
+    }
+
+    private static let pathAllowed = CharacterSet.urlPathAllowed.subtracting(CharacterSet(charactersIn: "/"))
+
+    private static func pathEncoded(_ value: String) -> String {
+        value.addingPercentEncoding(withAllowedCharacters: pathAllowed) ?? value
+    }
+
+    /// `inline` so the page can display the image; the name is what stops the phone
+    /// from filing every send under one repeated download. Non-ASCII names need the
+    /// RFC 5987 form, and a plain-ASCII fallback for clients that ignore it.
+    static func contentDisposition(filename: String) -> String {
+        let fallback = String(filename.unicodeScalars.map { scalar -> Character in
+            let disallowed = scalar == "\"" || scalar == "\\"
+            return scalar.isASCII && !disallowed ? Character(scalar) : "_"
+        })
+        return "Content-Disposition: inline; filename=\"\(fallback)\"; filename*=UTF-8''\(pathEncoded(filename))"
     }
 
     private func mime(for url: URL) -> String {
