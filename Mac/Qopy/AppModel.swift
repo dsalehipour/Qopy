@@ -147,7 +147,7 @@ final class AppModel: ObservableObject {
         lastReceivedFiles = []
         didCopyImage = false
         receivePhase = .copied
-        NSSound.beep()
+        Self.playReceivedSound()
     }
 
     func handlePhoneFiles(_ urls: [URL]) {
@@ -156,7 +156,22 @@ final class AppModel: ObservableObject {
         // A single image also lands on the clipboard, so ⌘V pastes it straight away.
         didCopyImage = urls.count == 1 && Self.copyImageToClipboard(urls[0])
         receivePhase = .copied
-        NSSound.beep()
+        Self.playReceivedSound()
+    }
+
+    /// `NSSound.beep()` plays whatever the user picked as their *alert* sound, which
+    /// announces a problem. Ping rises E4→C5, so it lands as a success instead.
+    private static let receivedSoundName = "Ping"
+
+    private static func playReceivedSound() {
+        guard let sound = NSSound(named: receivedSoundName) else {
+            NSSound.beep()
+            return
+        }
+        // NSSound(named:) can hand back a shared instance, and play() on one that is
+        // already playing is a no-op. Stopping first makes back-to-back sends retrigger.
+        sound.stop()
+        sound.play()
     }
 
     func revealReceivedFiles() {
